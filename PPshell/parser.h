@@ -36,10 +36,10 @@
    private implementation details that can be changed or removed.  */
 
 #ifndef YY_YY_MNT_D_PROGRAMMING_PPSHELL_PPSHELL_PARSER_H_INCLUDED
-# define YY_YY_MNT_D_PROGRAMMING_PPSHELL_PPSHELL_PARSER_H_INCLUDED
+#define YY_YY_MNT_D_PROGRAMMING_PPSHELL_PPSHELL_PARSER_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+#define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -47,57 +47,56 @@ extern int yydebug;
 /* "%code requires" blocks.  */
 #line 2 "main.y"
 
-	#include <stdio.h>
-	#include "main.h"
+#include <stdio.h>
+#include "main.h"
 
 #line 54 "/mnt/d/Programming/PPshell/PPshell/parser.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
-  {
-    YYEMPTY = -2,
-    YYEOF = 0,                     /* "end of file"  */
-    YYerror = 256,                 /* error  */
-    YYUNDEF = 257,                 /* "invalid token"  */
-    SEMIC = 258,                   /* SEMIC  */
-    IDF = 259,                     /* IDF  */
-    REDIRI = 260,                  /* REDIRI  */
-    REDIROT = 261,                 /* REDIROT  */
-    REDIROA = 262,                 /* REDIROA  */
-    PIPE = 263,                    /* PIPE  */
-    EOL = 264                      /* EOL  */
-  };
-  typedef enum yytokentype yytoken_kind_t;
+#define YYTOKENTYPE
+enum yytokentype
+{
+	YYEMPTY = -2,
+	YYEOF = 0,	   /* "end of file"  */
+	YYerror = 256, /* error  */
+	YYUNDEF = 257, /* "invalid token"  */
+	SEMIC = 258,   /* SEMIC  */
+	IDF = 259,	   /* IDF  */
+	REDIRI = 260,  /* REDIRI  */
+	REDIROT = 261, /* REDIROT  */
+	REDIROA = 262, /* REDIROA  */
+	PIPE = 263,	   /* PIPE  */
+	EOL = 264	   /* EOL  */
+};
+typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+#if !defined YYSTYPE && !defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-  command_t command;                       /* command  */
-  command_t command_arguments_redirections; /* command_arguments_redirections  */
-  pipeline_t pipeline;                     /* pipeline  */
-  pipelines_t pipelines_pure;              /* pipelines_pure  */
-  redirection_t redirection;               /* redirection  */
-  redirection_type_t redirection_type;     /* redirection_type  */
-  redirections_t redirections;             /* redirections  */
-  string_t IDF;                            /* IDF  */
-  string_t argument;                       /* argument  */
-  string_t command_path;                   /* command_path  */
+	command_t command; /* command  */
+	command_t
+		command_arguments_redirections;	 /* command_arguments_redirections  */
+	pipeline_t pipeline;				 /* pipeline  */
+	pipelines_t pipelines_pure;			 /* pipelines_pure  */
+	redirection_t redirection;			 /* redirection  */
+	redirection_type_t redirection_type; /* redirection_type  */
+	redirections_t redirections;		 /* redirections  */
+	string_t IDF;						 /* IDF  */
+	string_t argument;					 /* argument  */
+	string_t command_path;				 /* command_path  */
 
 #line 91 "/mnt/d/Programming/PPshell/PPshell/parser.h"
-
 };
 typedef union YYSTYPE YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
+#define YYSTYPE_IS_TRIVIAL 1
+#define YYSTYPE_IS_DECLARED 1
 #endif
-
 
 extern YYSTYPE yylval;
 
-int yyparse (void);
+int yyparse(void);
 
 #endif /* !YY_YY_MNT_D_PROGRAMMING_PPSHELL_PPSHELL_PARSER_H_INCLUDED  */

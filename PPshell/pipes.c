@@ -1,121 +1,81 @@
-#include <unistd.h>
-#include <stdlib.h>
-#include <assert.h>
-
 #include "pipes.h"
-#include "redirect_fd.h"
 
-static void pipe_create(pipe_t* p)
-{
-	pipe(p->descriptors);
-}
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-int* pipe_get_read(pipe_t* p)
-{
-	return &p->descriptors[0];
-}
-int* pipe_get_write(pipe_t* p)
-{
-	return &p->descriptors[1];
-}
-static int pipe_checked_close(int* fd)
-{
-	if (*fd != -1)
-		return close(*fd);
-
-	return 0;
-}
-static void pipe_close_read(pipe_t* p)
-{
-	int* in = pipe_get_read(p);
-	pipe_checked_close(in);
-	*in = -1;
-}
-static void pipe_close_write(pipe_t* p)
-{
-	int* out = pipe_get_write(p);
-	pipe_checked_close(out);
-	*out = -1;
-}
-void pipe_close(pipe_t* p)
-{
-	pipe_close_read(p);
-	pipe_close_write(p);
-}
-
-void pipe_set(pipe_t* pipe, int in, int out)
-{
-	pipe->descriptors[0] = in;
-	pipe->descriptors[1] = out;
-}
-
-void pipe_redirect_io(pipe_t* p)
-{
-	redirect_fd(STDIN_FILENO, *pipe_get_read(p));
-	redirect_fd(STDOUT_FILENO, *pipe_get_write(p));
-}
+#include "error_handling.h"
+#include "file_descriptor.h"
 
 void pipes_construct(pipes_t* pipes)
 {
-	pipe_set(&pipes->input_pipe, -1, -1);
-	pipe_set(&pipes->output_pipe, -1, -1);
+	file_descriptor_construct(&pipes->in);
+	file_descriptor_construct(&pipes->out);
+	file_descriptor_construct(&pipes->in_future);
 }
 
-static int pipe_get_read_or_std(pipe_t* pipe)
+static int pipes_shift(pipes_t* pipes)
 {
-	int in = *pipe_get_read(pipe);
-	if (in == -1)
-		in = STDIN_FILENO;
+	ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(&pipes->out));
+	ERROR_CHECK_INT_NEG_ONE(
+		file_descriptor_assign_move(&pipes->in, &pipes->in_future));
 
-	return in;
+	return 0;
 }
 
-static int pipe_get_write_or_std(pipe_t* pipe)
+int pipes_create_next(pipes_t* pipes)
 {
-	int out = *pipe_get_write(pipe);
-	if (out == -1)
-		out = STDOUT_FILENO;
+	ERROR_CHECK_INT_NEG_ONE(pipes_shift(pipes));
+	ERROR_CHECK_INT_NEG_ONE(
+		file_descriptor_construct_pipe(&pipes->in_future, &pipes->out));
 
-	return out;
+	return 0;
+}
+int pipes_create_last(pipes_t* pipes)
+{
+	ERROR_CHECK_INT_NEG_ONE(pipes_shift(pipes));
+
+	return 0;
 }
 
-pipe_t pipes_get(pipes_t* pipes)
+int pipes_destroy(pipes_t* pipes)
 {
-	pipe_t p;
+	ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(&pipes->in));
+	ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(&pipes->out));
+	ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(&pipes->in_future));
 
-	pipe_set(&p, pipe_get_read_or_std(&pipes->input_pipe), pipe_get_write_or_std(&pipes->output_pipe));
-
-	return p;
+	return 0;
 }
 
-pipe_t pipes_get_and_close(pipes_t* pipes)
+int pipes_redirect_and_destroy(pipes_t* pipes)
 {
-	pipe_close_write(&pipes->input_pipe);
-	pipe_close_read(&pipes->output_pipe);
+	ERROR_CHECK_INT_NEG_ONE(
+		file_descriptor_redirect_destroy(&pipes->in, STDIN_FILENO));
 
-	return pipes_get(pipes);
+	ERROR_CHECK_INT_NEG_ONE(
+		file_descriptor_redirect_destroy(&pipes->out, STDOUT_FILENO));
+
+	ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(&pipes->in_future));
+
+	return 0;
 }
 
-void pipes_shift(pipes_t* pipes)
+int pipes_get_in_or_std(pipes_t* pipes)
 {
-	pipe_close(&pipes->input_pipe);
-	pipes->input_pipe = pipes->output_pipe;
-}
+	file_descriptor_t* in = &pipes->in;
 
-void pipes_create_next(pipes_t* pipes)
-{
-	pipes_shift(pipes);
-
-	pipe_create(&pipes->output_pipe);
+	if (!file_descriptor_is_valid(in))
+		return STDIN_FILENO;
+	else
+		return in->fd;
 }
-void pipes_create_last(pipes_t* pipes)
+int pipes_get_out_or_std(pipes_t* pipes)
 {
-	pipes_shift(pipes);
-	pipe_set(&pipes->output_pipe, -1, -1);
-}
+	file_descriptor_t* out = &pipes->out;
 
-void pipes_destroy(pipes_t* pipes)
-{
-	pipe_close(&pipes->input_pipe);
-	pipe_close(&pipes->output_pipe);
+	if (!file_descriptor_is_valid(out))
+		return STDOUT_FILENO;
+	else
+		return out->fd;
 }

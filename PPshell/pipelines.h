@@ -13,4 +13,6 @@ void pipelines_init_move(pipelines_t* pipelines, pipeline_t* pipeline);
 void pipelines_append_move(pipelines_t* pipelines, pipeline_t* pipeline);
 void pipelines_destroy(pipelines_t* pipelines);
 
-void pipelines_execute_and_destroy(pipelines_t* pipelines);
+void pipelines_execute_and_destroy(pipelines_t* pipelines, int* return_value);
+
+void pipelines_debug(pipelines_t* pipelines);

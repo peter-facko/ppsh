@@ -8,6 +8,8 @@ bison_target(parser main.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.c DEFINES_FILE ${C
 flex_target(lexer main.lex ${CMAKE_CURRENT_SOURCE_DIR}/lexer.c)
 ADD_FLEX_BISON_DEPENDENCY(lexer parser)
 
+add_compile_options(-Wall -Wextra -pedantic -Werror)
+
 add_executable(PPshell ${BISON_parser_OUTPUTS} ${FLEX_lexer_OUTPUTS}
 	"main.c"
 	"string.c"
@@ -20,7 +22,9 @@ add_executable(PPshell ${BISON_parser_OUTPUTS} ${FLEX_lexer_OUTPUTS}
 	"internal_commands.c"
 	"internal_exit.c"
 	"internal_cd.c"
- "pipes.h" "pipes.c" "redirect_fd.c")
+ 	"pipes.h"
+	"pipes.c"
+	"file_descriptor.c")
 
 target_link_libraries(PPshell readline)
 target_link_libraries(PPshell ${FLEX_LIBRARIES})

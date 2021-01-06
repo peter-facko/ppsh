@@ -1,12 +1,12 @@
-#include <stdlib.h>
+#include <dirent.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <dirent.h>
 
 #include "pipes.h"
 
-int internal_cd(int argc, char** argv, pipe_t p)
+int internal_cd(int argc, char** argv, int in, int out, int return_value)
 {
 	if (argc != 1 && argc != 2)
 	{
@@ -15,7 +15,7 @@ int internal_cd(int argc, char** argv, pipe_t p)
 
 		return 1;
 	}
-	
+
 	const char* new_pwd_value = NULL;
 
 	if (argc == 1)
@@ -39,14 +39,15 @@ int internal_cd(int argc, char** argv, pipe_t p)
 				fprintf(stderr, "PPshell: cd: OLDPWD not set\n");
 				return 1;
 			}
-			dprintf(*pipe_get_write(&p), "%s\n", new_pwd_value);
+			dprintf(out, "%s\n", new_pwd_value);
 		}
 		else
 		{
 			DIR* dir = opendir(argument);
 			if (dir == NULL)
 			{
-				if (fprintf(stderr, "cd: %s is not a valid directory\n", argument) < 0)
+				if (fprintf(stderr, "cd: %s is not a valid directory\n",
+							argument) < 0)
 					return 2;
 
 				return 1;
@@ -65,7 +66,6 @@ int internal_cd(int argc, char** argv, pipe_t p)
 		return 3;
 	}
 
-
 	if (setenv("PWD", new_pwd_value, 1) != 0)
 	{
 		if (fprintf(stderr, "setenv(PWD) error\n") < 0)
@@ -83,4 +83,7 @@ int internal_cd(int argc, char** argv, pipe_t p)
 	}
 
 	return 0;
+
+	(void)in;
+	(void)return_value;
 }

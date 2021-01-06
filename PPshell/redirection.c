@@ -1,6 +1,7 @@
 #include "redirection.h"
 
-void redirection_init_move(redirection_t* red, string_t* file_path, redirection_type_t type)
+void redirection_init_move(redirection_t* red, string_t* file_path,
+						   redirection_type_t type)
 {
 	string_construct_move(&red->file_path, file_path);
 	red->type = type;

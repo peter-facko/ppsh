@@ -4,4 +4,8 @@ project(PPshell)
 
 add_subdirectory(PPshell)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c17 -pedantic -Wall -Wextra -Werror")
+#add_custom_target(
+#    cstyle
+#    COMMAND find ${CMAKE_CURRENT_SOURCE_DIR}/ -name \"*.[ch]\" -exec clang-format -style=file -i {} "\;"
+#)
+#add_dependencies(PPshell cstyle)

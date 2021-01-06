@@ -4,6 +4,9 @@
 	#include <readline/history.h>
 	#include "parser.h"
 	#include "main.h"
+
+	#define YY_NO_INPUT
+	#define YY_NO_UNPUT
 %}
 
 %%
@@ -14,11 +17,16 @@
 \>\>				{ return REDIROA; }
 \|					{ return PIPE; }
 
-[^ \t;<>|\r\n#]+	{ string_t s; string_init_cstring_copy(&s, yytext); yylval.IDF = s; return IDF; }
+[^ \t;<>|\r\n#]+	{
+						string_t s;
+						string_construct_cstring_copy(&s, yytext);
+						yylval.IDF = s;
+						return IDF;
+					}
 
 #.*					{ /* ignore comment */ }
 
-\n					{ ++line_number; return EOL; }
+\n					{ line_number_increment(); return EOL; }
 
 .					{ /* ignore */ }
 

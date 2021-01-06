@@ -1,7 +1,12 @@
 #pragma once
 #include "pipelines.h"
-#include "return_value.h"
 
 int parse_line(const char* input);
 
-extern unsigned int line_number;
+void line_number_increment();
+
+int yyparse();
+void yyerror(const char* message);
+int yylex();
+
+void execute(pipelines_t* pipelines);

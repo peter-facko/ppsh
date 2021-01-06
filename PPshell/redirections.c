@@ -1,9 +1,11 @@
+#include "redirections.h"
+
+#include <assert.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
 
-#include "redirections.h"
-#include "redirect_fd.h"
+#include "error_handling.h"
 
 void redirections_construct(redirections_t* redirections)
 {
@@ -11,13 +13,15 @@ void redirections_construct(redirections_t* redirections)
 	string_construct(&redirections->output_file);
 	redirections->output_append = false;
 }
-void redirections_construct_move(redirections_t* redirections, redirections_t* other)
+void redirections_construct_move(redirections_t* redirections,
+								 redirections_t* other)
 {
-	string_construct_move(&redirections->input_file , &other->input_file);
+	string_construct_move(&redirections->input_file, &other->input_file);
 	string_construct_move(&redirections->output_file, &other->output_file);
 	redirections->output_append = other->output_append;
 }
-void redirections_register_move(redirections_t* redirections, redirection_t* redirection)
+void redirections_register_move(redirections_t* redirections,
+								redirection_t* redirection)
 {
 	string_t* to_assign;
 
@@ -38,7 +42,8 @@ void redirections_register_move(redirections_t* redirections, redirection_t* red
 
 	string_assign_move(to_assign, &redirection->file_path);
 }
-void redirections_combine_move(redirections_t* redirections, redirections_t* other)
+void redirections_combine_move(redirections_t* redirections,
+							   redirections_t* other)
 {
 	if (!string_is_valid(&redirections->input_file))
 		string_assign_move(&redirections->input_file, &other->input_file);
@@ -57,26 +62,42 @@ void redirections_destroy(redirections_t* redirections)
 	string_destroy(&redirections->output_file);
 }
 
-static int open_file_and_redirect_fd(string_t* file_path, int to_change_fd, int flags)
+static int file_descriptor_construct_open_redirections(file_descriptor_t* fd,
+													   string_t* file_path,
+													   int flags)
 {
-	if (string_is_valid(file_path))
-	{
-		const char* file_path_cstr = string_get(file_path);
-		
-		int new_fd = open(file_path_cstr, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-		if (new_fd == -1)
-		{
-			fprintf(stderr, "PPshell: %s: couldn't open file\n", file_path_cstr);
-			return 1;
-		}
+	assert(fd != NULL);
+	assert(file_path != NULL);
 
-		redirect_fd(to_change_fd, new_fd);
+	const char* path = string_get(file_path);
+
+	assert(path != NULL);
+
+	if (file_descriptor_construct_open(
+			fd, path, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) != 0)
+	{
+		fprintf(stderr, "PPshell: %s: couldn't open file\n", path);
+
+		return -1;
 	}
 
 	return 0;
 }
 
-static int redirections_get_append_flag(redirections_t* redirections)
+static int open_file_and_redirect_fd(string_t* file_path, int raw_fd, int flags)
+{
+	file_descriptor_t file;
+	int status =
+		file_descriptor_construct_open_redirections(&file, file_path, flags);
+
+	ERROR_CHECK_INT(status, status);
+
+	ERROR_CHECK_INT(file_descriptor_redirect_destroy(&file, raw_fd), -2);
+
+	return 0;
+}
+
+static int redirections_get_append_flag(const redirections_t* redirections)
 {
 	if (redirections->output_append)
 		return O_APPEND;
@@ -86,11 +107,18 @@ static int redirections_get_append_flag(redirections_t* redirections)
 
 int redirections_redirect_io(redirections_t* redirections)
 {
-	if (open_file_and_redirect_fd(&redirections->input_file, STDIN_FILENO, O_RDONLY) != 0)
-		return 1;
+	string_t* in = &redirections->input_file;
 
-	if (open_file_and_redirect_fd(&redirections->output_file, STDOUT_FILENO, O_CREAT | O_WRONLY | redirections_get_append_flag(redirections)) != 0)
-		return 1;
+	if (string_is_valid(in))
+		ERROR_CHECK_INT_NEG_ONE(
+			open_file_and_redirect_fd(in, STDIN_FILENO, O_RDONLY));
+
+	string_t* out = &redirections->output_file;
+
+	if (string_is_valid(out))
+		ERROR_CHECK_INT_NEG_ONE(open_file_and_redirect_fd(
+			out, STDOUT_FILENO,
+			O_CREAT | O_WRONLY | redirections_get_append_flag(redirections)));
 
 	return 0;
 }

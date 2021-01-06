@@ -1,6 +1,8 @@
 #include "pipelines.h"
+
+#include <stdio.h>
+
 #include "stailq_helpers.h"
-#include "return_value.h"
 
 static pipelines_head_t* pipelines_get_head(pipelines_t* pipelines)
 {
@@ -34,13 +36,23 @@ void pipelines_destroy(pipelines_t* pipelines)
 		free(pipelines_pop_and_destroy(pipelines));
 }
 
-void pipelines_execute_and_destroy(pipelines_t* pipelines)
+void pipelines_execute_and_destroy(pipelines_t* pipelines, int* return_value)
 {
 	pipeline_t* pipeline;
 	STAILQ_FOREACH(pipeline, pipelines_get_head(pipelines), link)
 	{
-		pipeline_execute(pipeline);
+		pipeline_execute(pipeline, return_value);
 	}
 
 	pipelines_destroy(pipelines);
+}
+
+void pipelines_debug(pipelines_t* pipelines)
+{
+	pipeline_t* pipeline;
+	STAILQ_FOREACH(pipeline, pipelines_get_head(pipelines), link)
+	{
+		pipeline_debug(pipeline);
+		printf(";\n");
+	}
 }

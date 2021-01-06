@@ -1,8 +1,13 @@
 #include <stdlib.h>
-#include "return_value.h"
+
 #include "pipes.h"
 
-int internal_exit(int argc, char** argv, pipe_t p)
+int internal_exit(int argc, char** argv, int in, int out, int return_value)
 {
+	(void)argc;
+	(void)argv;
+	(void)in;
+	(void)out;
+
 	exit(return_value);
 }
