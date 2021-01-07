@@ -1075,103 +1075,103 @@ yyreduce:
   switch (yyn)
     {
   case 5: /* pipelines: pipelines_pure semic_opt  */
-#line 35 "main.y"
+#line 35 "/mnt/d/Programming/PPshell/PPshell/main.y"
                                  { /*pipelines_debug(&$1);*/ execute(&(yyvsp[-1].pipelines_pure)); }
 #line 1081 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 6: /* pipelines_pure: pipeline  */
-#line 38 "main.y"
+#line 38 "/mnt/d/Programming/PPshell/PPshell/main.y"
                  { pipelines_init_move(&(yyval.pipelines_pure), &(yyvsp[0].pipeline)); }
 #line 1087 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 7: /* pipelines_pure: pipelines_pure SEMIC pipeline  */
-#line 39 "main.y"
+#line 39 "/mnt/d/Programming/PPshell/PPshell/main.y"
                                       { pipelines_append_move(&(yyvsp[-2].pipelines_pure), &(yyvsp[0].pipeline)); pipelines_construct_move(&(yyval.pipelines_pure), &(yyvsp[-2].pipelines_pure)); }
 #line 1093 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 10: /* pipeline: command  */
-#line 46 "main.y"
+#line 46 "/mnt/d/Programming/PPshell/PPshell/main.y"
                 { pipeline_construct_move_command(&(yyval.pipeline), &(yyvsp[0].command)); }
 #line 1099 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 11: /* pipeline: pipeline PIPE command  */
-#line 47 "main.y"
+#line 47 "/mnt/d/Programming/PPshell/PPshell/main.y"
                               { pipeline_append_move_command(&(yyvsp[-2].pipeline), &(yyvsp[0].command)); pipeline_construct_move(&(yyval.pipeline), &(yyvsp[-2].pipeline)); }
 #line 1105 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 12: /* command: redirections command_arguments_redirections  */
-#line 50 "main.y"
+#line 50 "/mnt/d/Programming/PPshell/PPshell/main.y"
                                                     { command_combine_redirections_move(&(yyvsp[0].command_arguments_redirections), &(yyvsp[-1].redirections)); command_construct_move(&(yyval.command), &(yyvsp[0].command_arguments_redirections)); }
 #line 1111 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 13: /* redirections: %empty  */
-#line 53 "main.y"
+#line 53 "/mnt/d/Programming/PPshell/PPshell/main.y"
                { redirections_construct(&(yyval.redirections)); }
 #line 1117 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 14: /* redirections: redirections redirection  */
-#line 54 "main.y"
+#line 54 "/mnt/d/Programming/PPshell/PPshell/main.y"
                                  { redirections_register_move(&(yyvsp[-1].redirections), &(yyvsp[0].redirection)); redirections_construct_move(&(yyval.redirections), &(yyvsp[-1].redirections)); }
 #line 1123 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 15: /* command_arguments_redirections: command_path  */
-#line 57 "main.y"
+#line 57 "/mnt/d/Programming/PPshell/PPshell/main.y"
                      { command_construct_move_cmd_path(&(yyval.command_arguments_redirections), &(yyvsp[0].command_path)); }
 #line 1129 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 16: /* command_arguments_redirections: command_arguments_redirections argument  */
-#line 58 "main.y"
+#line 58 "/mnt/d/Programming/PPshell/PPshell/main.y"
                                                 { command_register_argument_move(&(yyvsp[-1].command_arguments_redirections), &(yyvsp[0].argument)); command_construct_move(&(yyval.command_arguments_redirections), &(yyvsp[-1].command_arguments_redirections)); }
 #line 1135 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 17: /* command_arguments_redirections: command_arguments_redirections redirection  */
-#line 59 "main.y"
+#line 59 "/mnt/d/Programming/PPshell/PPshell/main.y"
                                                    { command_register_redirection_move(&(yyvsp[-1].command_arguments_redirections), &(yyvsp[0].redirection)); command_construct_move(&(yyval.command_arguments_redirections), &(yyvsp[-1].command_arguments_redirections)); }
 #line 1141 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 18: /* argument: IDF  */
-#line 62 "main.y"
+#line 62 "/mnt/d/Programming/PPshell/PPshell/main.y"
             { string_construct_move(&(yyval.argument), &(yyvsp[0].IDF)); }
 #line 1147 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 19: /* redirection: redirection_type IDF  */
-#line 65 "main.y"
+#line 65 "/mnt/d/Programming/PPshell/PPshell/main.y"
                              { redirection_init_move(&(yyval.redirection), &(yyvsp[0].IDF), (yyvsp[-1].redirection_type)); }
 #line 1153 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 20: /* redirection_type: REDIRI  */
-#line 68 "main.y"
+#line 68 "/mnt/d/Programming/PPshell/PPshell/main.y"
                 { (yyval.redirection_type) = RT_INPUT; }
 #line 1159 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 21: /* redirection_type: REDIROT  */
-#line 69 "main.y"
+#line 69 "/mnt/d/Programming/PPshell/PPshell/main.y"
                 { (yyval.redirection_type) = RT_OUTPUT_TRUNCATE; }
 #line 1165 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 22: /* redirection_type: REDIROA  */
-#line 70 "main.y"
+#line 70 "/mnt/d/Programming/PPshell/PPshell/main.y"
                 { (yyval.redirection_type) = RT_OUTPUT_APPEND; }
 #line 1171 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
   case 23: /* command_path: IDF  */
-#line 73 "main.y"
+#line 73 "/mnt/d/Programming/PPshell/PPshell/main.y"
             { string_construct_move(&(yyval.command_path), &(yyvsp[0].IDF)); }
 #line 1177 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
@@ -1371,5 +1371,5 @@ yyreturn:
   return yyresult;
 }
 
-#line 75 "main.y"
+#line 75 "/mnt/d/Programming/PPshell/PPshell/main.y"
 

@@ -45,7 +45,7 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 2 "main.y"
+#line 2 "/mnt/d/Programming/PPshell/PPshell/main.y"
 
 	#include <stdio.h>
 	#include "main.h"

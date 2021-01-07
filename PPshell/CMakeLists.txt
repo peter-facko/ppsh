@@ -1,12 +1,12 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.16)
 
-find_package(BISON)
-find_package(FLEX)
+find_package(BISON REQUIRED)
+find_package(FLEX REQUIRED)
 
 bison_target(parser main.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.c DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/parser.h)
 
 flex_target(lexer main.lex ${CMAKE_CURRENT_SOURCE_DIR}/lexer.c)
-ADD_FLEX_BISON_DEPENDENCY(lexer parser)
+add_flex_bison_dependency(lexer parser)
 
 add_compile_options(-Wall -Wextra -pedantic -Werror)
 
