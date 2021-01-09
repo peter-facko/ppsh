@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
+add_compile_options(-Wall -Wextra -pedantic -Werror)
+
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 
@@ -7,8 +9,6 @@ bison_target(parser main.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.c DEFINES_FILE ${C
 
 flex_target(lexer main.lex ${CMAKE_CURRENT_SOURCE_DIR}/lexer.c)
 add_flex_bison_dependency(lexer parser)
-
-add_compile_options(-Wall -Wextra -pedantic -Werror)
 
 add_executable(PPshell ${BISON_parser_OUTPUTS} ${FLEX_lexer_OUTPUTS}
 	"main.c"
