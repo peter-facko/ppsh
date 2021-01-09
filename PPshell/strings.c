@@ -7,6 +7,22 @@
 
 const int strings_default_capacity = 7;
 
+string_t* strings_get_begin(strings_t* strings)
+{
+	assert(strings != NULL);
+	assert(strings_is_valid(strings));
+
+	return strings->buffer;
+}
+
+static string_t* strings_get_end(strings_t* strings)
+{
+	assert(strings != NULL);
+	assert(strings_is_valid(strings));
+
+	return strings_get_begin(strings) + strings->length;
+}
+
 string_t* string_malloc(size_t count)
 {
 	return (string_t*)malloc((count + 1) * sizeof(string_t));
@@ -33,28 +49,14 @@ void strings_construct_move(strings_t* strings, strings_t* other)
 	other->capacity = 0;
 }
 
-static string_t* strings_get_begin(strings_t* strings)
-{
-	return strings->buffer;
-}
-
-string_t* strings_get_end(strings_t* strings)
-{
-	string_t* begin = strings_get_begin(strings);
-
-	if (begin == NULL)
-		return NULL;
-
-	return begin + strings->length;
-}
-
 void strings_destroy(strings_t* strings)
 {
-	string_t* end = strings_get_end(strings);
+	assert(strings != NULL);
 
-	if (end != NULL)
+	if (strings_is_valid(strings))
 	{
-		for (string_t* i = strings_get_begin(strings); i != end; ++i)
+		for (string_t* i = strings_get_begin(strings);
+			 i != strings_get_end(strings); ++i)
 			string_destroy(i);
 	}
 
@@ -62,8 +64,15 @@ void strings_destroy(strings_t* strings)
 	strings->buffer = NULL;
 }
 
-static void strings_many_init_move(string_t* begin, const string_t* end,
-								   string_t* to)
+bool strings_is_valid(const strings_t* strings)
+{
+	assert(strings != NULL);
+
+	return strings->buffer != NULL;
+}
+
+static void strings_many_construct_move(string_t* begin, const string_t* end,
+										string_t* to)
 {
 	assert(begin != NULL);
 	assert(end != NULL);
@@ -75,7 +84,10 @@ static void strings_many_init_move(string_t* begin, const string_t* end,
 
 int strings_append_move(strings_t* strings, string_t* string)
 {
-	assert(strings->buffer != NULL);
+	assert(strings != NULL);
+	assert(string != NULL);
+	assert(strings_is_valid(strings));
+	assert(string_is_valid(string));
 
 	if (strings->length == strings->capacity)
 	{
@@ -86,8 +98,8 @@ int strings_append_move(strings_t* strings, string_t* string)
 
 		strings->capacity = new_capacity;
 
-		strings_many_init_move(strings_get_begin(strings),
-							   strings_get_end(strings), new_buffer);
+		strings_many_construct_move(strings_get_begin(strings),
+									strings_get_end(strings), new_buffer);
 
 		free(strings->buffer);
 
@@ -105,18 +117,14 @@ int strings_append_move(strings_t* strings, string_t* string)
 
 char** strings_get(strings_t* strings)
 {
-	return (char**)strings->buffer;
+	assert(strings != NULL);
+
+	return (char**)strings_get_begin(strings);
 }
 
-size_t strings_get_count(strings_t* strings)
+size_t strings_get_count(const strings_t* strings)
 {
+	assert(strings != NULL);
+
 	return strings->length;
-}
-
-string_t* strings_get_front(strings_t* strings)
-{
-	if (strings->length != 0)
-		return strings->buffer;
-	else
-		return NULL;
 }

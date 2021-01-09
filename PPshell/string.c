@@ -33,8 +33,11 @@ void string_assign_move(string_t* string, string_t* new_string)
 	assert(string != NULL);
 	assert(new_string != NULL);
 
-	string_destroy(string);
-	string_construct_move(string, new_string);
+	if (string->data != new_string->data)
+	{
+		string_destroy(string);
+		string_construct_move(string, new_string);
+	}
 }
 
 void string_destroy(string_t* string)

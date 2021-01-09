@@ -14,7 +14,8 @@ void pipelines_construct_move(pipelines_t* pipelines, pipelines_t* other)
 	pipelines->head = other->head;
 	STAILQ_INIT(pipelines_get_head(other));
 }
-void pipelines_init_move(pipelines_t* pipelines, pipeline_t* pipeline)
+void pipelines_construct_pipeline_move(pipelines_t* pipelines,
+									   pipeline_t* pipeline)
 {
 	STAILQ_INIT(pipelines_get_head(pipelines));
 
@@ -47,12 +48,12 @@ void pipelines_execute_and_destroy(pipelines_t* pipelines, int* return_value)
 	pipelines_destroy(pipelines);
 }
 
-void pipelines_debug(pipelines_t* pipelines)
+void pipelines_debug(pipelines_t* pipelines, FILE* out)
 {
 	pipeline_t* pipeline;
 	STAILQ_FOREACH(pipeline, pipelines_get_head(pipelines), link)
 	{
-		pipeline_debug(pipeline);
-		printf(";\n");
+		pipeline_debug(pipeline, out);
+		fprintf(out, ";\n");
 	}
 }

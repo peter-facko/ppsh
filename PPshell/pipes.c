@@ -26,6 +26,8 @@ static int pipes_shift(pipes_t* pipes)
 
 int pipes_create_next(pipes_t* pipes)
 {
+	assert(pipes != NULL);
+
 	ERROR_CHECK_INT_NEG_ONE(pipes_shift(pipes));
 	ERROR_CHECK_INT_NEG_ONE(
 		file_descriptor_construct_pipe(&pipes->in_future, &pipes->out));
@@ -34,6 +36,8 @@ int pipes_create_next(pipes_t* pipes)
 }
 int pipes_create_last(pipes_t* pipes)
 {
+	assert(pipes != NULL);
+
 	ERROR_CHECK_INT_NEG_ONE(pipes_shift(pipes));
 
 	return 0;
@@ -41,6 +45,8 @@ int pipes_create_last(pipes_t* pipes)
 
 int pipes_destroy(pipes_t* pipes)
 {
+	assert(pipes != NULL);
+
 	ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(&pipes->in));
 	ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(&pipes->out));
 	ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(&pipes->in_future));
@@ -50,6 +56,8 @@ int pipes_destroy(pipes_t* pipes)
 
 int pipes_redirect_and_destroy(pipes_t* pipes)
 {
+	assert(pipes != NULL);
+
 	ERROR_CHECK_INT_NEG_ONE(
 		file_descriptor_redirect_destroy(&pipes->in, STDIN_FILENO));
 
@@ -61,21 +69,21 @@ int pipes_redirect_and_destroy(pipes_t* pipes)
 	return 0;
 }
 
-int pipes_get_in_or_std(pipes_t* pipes)
+static int pipes_get_helper(file_descriptor_t* fd, int if_invalid)
 {
-	file_descriptor_t* in = &pipes->in;
+	assert(fd != NULL);
 
-	if (!file_descriptor_is_valid(in))
-		return STDIN_FILENO;
-	else
-		return in->fd;
+	if (!file_descriptor_is_valid(fd))
+		return if_invalid;
+
+	return fd->fd;
 }
-int pipes_get_out_or_std(pipes_t* pipes)
-{
-	file_descriptor_t* out = &pipes->out;
 
-	if (!file_descriptor_is_valid(out))
-		return STDOUT_FILENO;
-	else
-		return out->fd;
+int pipes_get_in(pipes_t* pipes)
+{
+	return pipes_get_helper(&pipes->in, STDIN_FILENO);
+}
+int pipes_get_out(pipes_t* pipes)
+{
+	return pipes_get_helper(&pipes->out, STDOUT_FILENO);
 }

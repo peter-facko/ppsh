@@ -9,11 +9,25 @@
 
 #include "error_handling.h"
 
-void file_descriptor_construct(file_descriptor_t* fd)
+static void file_descriptor_invalidate(file_descriptor_t* fd)
 {
 	assert(fd != NULL);
 
 	fd->fd = -1;
+}
+
+static void file_descriptor_construct_raw_fd(file_descriptor_t* fd, int raw_fd)
+{
+	assert(fd != NULL);
+
+	fd->fd = raw_fd;
+}
+
+void file_descriptor_construct(file_descriptor_t* fd)
+{
+	assert(fd != NULL);
+
+	file_descriptor_invalidate(fd);
 }
 void file_descriptor_construct_move(file_descriptor_t* fd,
 									file_descriptor_t* other)
@@ -22,10 +36,13 @@ void file_descriptor_construct_move(file_descriptor_t* fd,
 	assert(other != NULL);
 
 	fd->fd = other->fd;
-	other->fd = -1;
+	file_descriptor_invalidate(other);
 }
 int file_descriptor_assign_move(file_descriptor_t* fd, file_descriptor_t* other)
 {
+	assert(fd != NULL);
+	assert(other != NULL);
+
 	ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(fd));
 	file_descriptor_construct_move(fd, other);
 
@@ -33,32 +50,42 @@ int file_descriptor_assign_move(file_descriptor_t* fd, file_descriptor_t* other)
 }
 int file_descriptor_destroy(file_descriptor_t* fd)
 {
+	assert(fd != NULL);
+
 	if (file_descriptor_is_valid(fd))
 	{
 		if (close(fd->fd) != 0)
 		{
-			fprintf(stderr, "close on %d failed (%s)\n", fd->fd,
+			fprintf(stderr, "Close on %d failed (%s).\n", fd->fd,
 					strerror(errno));
+
 			return -1;
 		}
 	}
 
-	fd->fd = -1;
+	file_descriptor_invalidate(fd);
 
 	return 0;
 }
 bool file_descriptor_is_valid(const file_descriptor_t* fd)
 {
+	assert(fd != NULL);
+
 	return fd->fd != -1;
 }
 
 int file_descriptor_construct_pipe(file_descriptor_t* fd_in,
 								   file_descriptor_t* fd_out)
 {
+	assert(fd_in != NULL);
+	assert(fd_out != NULL);
+
 	int temp[2];
 
 	if (pipe(temp) != 0)
 	{
+		fprintf(stderr, "Pipe creation failed (%s).\n", strerror(errno));
+
 		file_descriptor_construct(fd_in);
 		file_descriptor_construct(fd_out);
 
@@ -69,13 +96,6 @@ int file_descriptor_construct_pipe(file_descriptor_t* fd_in,
 	file_descriptor_construct_raw_fd(fd_out, temp[1]);
 
 	return 0;
-}
-
-void file_descriptor_construct_raw_fd(file_descriptor_t* fd, int raw_fd)
-{
-	assert(fd != NULL);
-
-	fd->fd = raw_fd;
 }
 
 int file_descriptor_construct_open(file_descriptor_t* fd, const char* path,
@@ -95,11 +115,17 @@ int file_descriptor_construct_open(file_descriptor_t* fd, const char* path,
 
 int file_descriptor_redirect_destroy(file_descriptor_t* to_duplicate, int where)
 {
+	assert(to_duplicate != NULL);
 	assert(where >= 0);
 
 	if (file_descriptor_is_valid(to_duplicate) && to_duplicate->fd != where)
 	{
-		ERROR_CHECK(dup2(to_duplicate->fd, where) == -1, -1);
+		if (dup2(to_duplicate->fd, where) == -1)
+		{
+			fprintf(stderr, "dup2 failed (%s).\n", strerror(errno));
+
+			return -1;
+		}
 
 		ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(to_duplicate));
 	}

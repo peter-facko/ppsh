@@ -1082,7 +1082,7 @@ yyreduce:
 
   case 6: /* pipelines_pure: pipeline  */
 #line 38 "/mnt/d/Programming/PPshell/PPshell/main.y"
-                 { pipelines_init_move(&(yyval.pipelines_pure), &(yyvsp[0].pipeline)); }
+                 { pipelines_construct_pipeline_move(&(yyval.pipelines_pure), &(yyvsp[0].pipeline)); }
 #line 1087 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 
@@ -1148,7 +1148,7 @@ yyreduce:
 
   case 19: /* redirection: redirection_type IDF  */
 #line 65 "/mnt/d/Programming/PPshell/PPshell/main.y"
-                             { redirection_init_move(&(yyval.redirection), &(yyvsp[0].IDF), (yyvsp[-1].redirection_type)); }
+                             { redirection_construct_path_move(&(yyval.redirection), &(yyvsp[0].IDF), (yyvsp[-1].redirection_type)); }
 #line 1153 "/mnt/d/Programming/PPshell/PPshell/parser.c"
     break;
 

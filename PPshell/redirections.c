@@ -7,6 +7,10 @@
 
 #include "error_handling.h"
 
+#define OUTPUT_APPEND_FALSE (0)
+#define OUTPUT_APPEND_TRUE (1)
+#define OUTPUT_APPEND_INVALID (3)
+
 void redirections_construct(redirections_t* redirections)
 {
 	string_construct(&redirections->input_file);
@@ -19,11 +23,17 @@ void redirections_construct_move(redirections_t* redirections,
 	string_construct_move(&redirections->input_file, &other->input_file);
 	string_construct_move(&redirections->output_file, &other->output_file);
 	redirections->output_append = other->output_append;
+
+	other->output_append = OUTPUT_APPEND_INVALID;
 }
 void redirections_register_move(redirections_t* redirections,
 								redirection_t* redirection)
 {
-	string_t* to_assign;
+	assert(redirections != NULL);
+	assert(redirection != NULL);
+	assert(redirection_is_valid(redirection));
+
+	string_t* to_assign = NULL;
 
 	switch (redirection->type)
 	{
@@ -45,6 +55,9 @@ void redirections_register_move(redirections_t* redirections,
 void redirections_combine_move(redirections_t* redirections,
 							   redirections_t* other)
 {
+	assert(redirections != NULL);
+	assert(other != NULL);
+
 	if (!string_is_valid(&redirections->input_file))
 		string_assign_move(&redirections->input_file, &other->input_file);
 
@@ -60,6 +73,11 @@ void redirections_destroy(redirections_t* redirections)
 {
 	string_destroy(&redirections->input_file);
 	string_destroy(&redirections->output_file);
+}
+
+bool redirections_is_valid(const redirections_t* redirections)
+{
+	return redirections->output_append != OUTPUT_APPEND_INVALID;
 }
 
 static int file_descriptor_construct_open_redirections(file_descriptor_t* fd,

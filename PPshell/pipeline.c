@@ -12,11 +12,16 @@
 
 static commands_t* pipeline_get_head(pipeline_t* pipeline)
 {
+	assert(pipeline != NULL);
+
 	return &pipeline->head;
 }
 
 void pipeline_construct_move(pipeline_t* pipeline, pipeline_t* other)
 {
+	assert(pipeline != NULL);
+	assert(other != NULL);
+
 	pipeline->head = other->head;
 	STAILQ_INIT(pipeline_get_head(other));
 }
@@ -27,145 +32,179 @@ void pipeline_construct_move_command(pipeline_t* pipeline, command_t* cmd)
 	pipeline_append_move_command(pipeline, cmd);
 }
 
-void pipeline_append_move_command(pipeline_t* pipeline, command_t* cmd)
+void pipeline_append_move_command(pipeline_t* pipeline, command_t* command)
 {
-	command_t* allocated_cmd = (command_t*)malloc(sizeof(command_t));
-	command_construct_move(allocated_cmd, cmd);
+	assert(pipeline != NULL);
+	assert(command != NULL);
+	assert(command_is_valid(command));
 
-	STAILQ_INSERT_TAIL(pipeline_get_head(pipeline), allocated_cmd, link);
+	command_t* allocated_command = (command_t*)malloc(sizeof(command_t));
+	command_construct_move(allocated_command, command);
+
+	STAILQ_INSERT_TAIL(pipeline_get_head(pipeline), allocated_command, link);
 }
 
 CREATE_STAILQ_POP_AND_DESTROY(pipeline, command, link)
 
 void pipeline_destroy(pipeline_t* pipeline)
 {
+	assert(pipeline != NULL);
+
 	while (!STAILQ_EMPTY(pipeline_get_head(pipeline)))
 		free(pipeline_pop_and_destroy(pipeline));
+}
+bool pipeline_is_valid(pipeline_t* pipeline)
+{
+	return !STAILQ_EMPTY(pipeline_get_head(pipeline));
+}
+
+static int child_status_to_return_value(int status)
+{
+	if (WIFEXITED(status))
+		return WEXITSTATUS(status);
+	else
+	{
+		if (WIFSIGNALED(status))
+		{
+			int child_signal = WTERMSIG(status);
+			fprintf(stderr, "Killed by signal %d\n", child_signal);
+			return 128 + child_signal;
+		}
+		else
+			return status;
+	}
 }
 
 static int wait_for_last_child(pid_t id, int* return_value)
 {
-	if (id != 0)
+	assert(id >= 0);
+	assert(return_value != NULL);
+
+	if (id == 0)
+		return 0;
+
+	int status;
+
+	if (waitpid(id, &status, 0) == (pid_t)-1)
 	{
-		int status;
-
-		if (waitpid(id, &status, 0) == (pid_t)-1)
-		{
-			fprintf(stderr, "wait failed\n");
-			return -1;
-		}
-
-		if (WIFEXITED(status))
-		{
-			*return_value = WEXITSTATUS(status);
-		}
-		else
-		{
-			if (WIFSIGNALED(status))
-			{
-				int child_signal = WTERMSIG(status);
-				fprintf(stderr, "Killed by signal %d\n", child_signal);
-				*return_value = 128 + child_signal;
-			}
-			else
-				*return_value = status;
-		}
+		fprintf(stderr, "wait failed\n");
+		return -1;
 	}
+
+	*return_value = child_status_to_return_value(status);
 
 	return 0;
 }
 
 static int wait_for_children(size_t children_count)
 {
-	int status;
+	bool fail = false;
+
 	while (children_count != 0)
 	{
-		if (wait(&status) == (pid_t)-1)
+		if (wait(&(int){0}) == (pid_t)-1 && !fail)
 		{
 			fprintf(stderr, "wait failed\n");
-			return -1;
+			fail = true;
 		}
 		--children_count;
 	}
 
-	return 0;
+	return fail ? -1 : 0;
 }
 
-static size_t pipeline_count_commands(pipeline_t* pipeline)
+static int pipes_create_helper(pipes_t* pipes, command_t* command)
 {
-	size_t children_count = 0;
-
-	command_t* cmd;
-	STAILQ_FOREACH(cmd, pipeline_get_head(pipeline), link)
-	{
-		++children_count;
-	}
-
-	return children_count;
+	// !command_is_last(command)
+	if (command->link.stqe_next != NULL)
+		return pipes_create_next(pipes);
+	else
+		return pipes_create_last(pipes);
 }
 
 static int pipeline_spawn_children(pipeline_t* pipeline, pid_t* last_child_pid,
-								   size_t* command_count, int* return_value)
+								   size_t* spawned, int* return_value)
 {
-	*command_count = pipeline_count_commands(pipeline);
+	assert(pipeline != NULL);
+	assert(last_child_pid != NULL);
+	assert(spawned != NULL);
+	assert(return_value != NULL);
+	assert(pipeline_is_valid(pipeline));
 
 	pipes_t pipes;
 
 	pipes_construct(&pipes);
 
-	size_t i = 0;
+	int return_status = 0;
+
+	size_t spawned_children = 0;
 
 	command_t* cmd;
 	STAILQ_FOREACH(cmd, pipeline_get_head(pipeline), link)
 	{
-		int status;
-
-		if (i != *command_count - 1)
-			status = pipes_create_next(&pipes);
-		else
-			status = pipes_create_last(&pipes);
-
-		if (status != 0)
+		if (pipes_create_helper(&pipes, cmd) != 0)
 		{
-			fprintf(stderr, "couldn't create pipe\n");
+			return_status = -2;
 			break;
 		}
 
 		*last_child_pid = command_execute(cmd, &pipes, return_value);
 
-		++i;
+		if (*last_child_pid == -1)
+		{
+			return_status = -3;
+			break;
+		}
+
+		++spawned_children;
 	}
 
-	if (pipes_destroy(&pipes) != 0)
-	{
-		fprintf(stderr, "couldn't destroy pipes\n");
-		return -1;
-	}
+	ERROR_CHECK_INT_NEG_ONE(pipes_destroy(&pipes));
 
-	return 0;
+	*spawned = spawned_children;
+
+	return return_status;
 }
 
-void pipeline_debug(pipeline_t* pipeline)
+void pipeline_debug(pipeline_t* pipeline, FILE* out)
 {
+	assert(pipeline != NULL);
+	assert(pipeline_is_valid(pipeline));
+
 	command_t* cmd;
 	STAILQ_FOREACH(cmd, pipeline_get_head(pipeline), link)
 	{
-		command_debug(cmd);
-		printf("|\n");
+		command_debug(cmd, out);
+		fprintf(out, "|\n");
 	}
 }
 
 int pipeline_execute(pipeline_t* pipeline, int* return_value)
 {
+	assert(pipeline != NULL);
+	assert(return_value != NULL);
+	assert(pipeline_is_valid(pipeline));
+
 	pid_t last_child_pid;
-	size_t command_count;
+	size_t spawned_children;
 
-	ERROR_CHECK_INT_NEG_ONE(pipeline_spawn_children(
-		pipeline, &last_child_pid, &command_count, return_value));
+	int return_status = 0;
 
-	ERROR_CHECK_INT_NEG_ONE(wait_for_last_child(last_child_pid, return_value));
+	if (pipeline_spawn_children(pipeline, &last_child_pid, &spawned_children,
+								return_value) != 0)
+	{
+		return_status = -2;
+	}
+	else if (wait_for_last_child(last_child_pid, return_value) != 0)
+	{
+		return_status = -3;
+	}
+	else
+	{
+		--spawned_children;
+	}
 
-	ERROR_CHECK_INT_NEG_ONE(wait_for_children(command_count - 1));
+	ERROR_CHECK_INT_NEG_ONE(wait_for_children(spawned_children));
 
-	return 0;
+	return return_status;
 }

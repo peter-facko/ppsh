@@ -9,9 +9,13 @@ typedef struct string
 
 /** Constructs an invalid string_t. */
 void string_construct(string_t* string);
+/** Special function. */
 void string_construct_move(string_t* string, string_t* new_string);
+/** Special function. */
 void string_assign_move(string_t* string, string_t* new_string);
+/** Special function. */
 void string_destroy(string_t* string);
+/** Special function. */
 bool string_is_valid(const string_t* string);
 
 /** Copies characters from null-terminated 'data'. */

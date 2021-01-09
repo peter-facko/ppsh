@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 #include <sys/queue.h>
 
 #include "pipes.h"
@@ -22,9 +23,12 @@ typedef struct command
 	STAILQ_ENTRY(command) link;
 } command_t;
 
-// special functions
+/** Special function. */
 void command_construct_move(command_t* command, command_t* other);
+/** Special function. */
 void command_destroy(command_t* command);
+/** Special function. */
+bool command_is_valid(const command_t* command);
 
 /** Constructs a command_t with 'command_path', no arguments and no
  * redirections on success.
@@ -62,4 +66,5 @@ char* const* command_get_arguments(command_t* command);
  */
 pid_t command_execute(command_t* command, pipes_t* pipes, int* return_value);
 
-void command_debug(command_t* command);
+/** Prints debug info about the 'command' into 'out'. */
+void command_debug(command_t* command, FILE* out);

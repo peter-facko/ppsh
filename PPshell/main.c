@@ -43,10 +43,10 @@ static void handler_SIGINT(int signum)
 	(void)signum;
 }
 
-typedef int string_copier(char*, size_t);
-
 static char* try_strcpy(char* begin, const char* end, ...)
 {
+	typedef int string_copier(char*, size_t);
+
 	va_list args;
 	va_start(args, end);
 
