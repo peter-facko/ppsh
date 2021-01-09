@@ -19,16 +19,18 @@ Before any call to a [contructor](#Constructors), an object is in the `undefined
 
 No function can change an object's state from a `defined` state to `undefined`.
 
-A simple correct lifetime of an object of an example structure `example_t` looks like:
+Object must be constructed before its first use.
 
-```
-example_t object;
-example_construct(&object);
-//...
-example_do_something(&object);
-//...
-example_destroy(&object);
-```
+The last operation on an object must be an [invalidation](#Invalidation).
+
+## Invalidation
+
+An operation which moves an object from a `defined` state to `invalid` state.
+
+Explicitly: [destruction](#Destructor), [move](#Move) or an [assigner](#Assigners)
+(only when assigning an `invalid` object).
+
+Other function can invalidate an object, but only by calling an invalidating function.
 
 # Special functions
 
@@ -52,7 +54,7 @@ Postconditions:
 * The object is in the same state as the moved-from object was before the call.
 * The moved-from object is in the `invalid` state.
 
-The object semantically "steals" resources from the moved-from object.
+The object semantically "steals" resources from the moved-from object and invalidates it.
 
 ## Constructors
 
@@ -137,7 +139,10 @@ Preconditions:
 
 Postconditions:
 * The object is in the same state as the moved-from object was before the call.
-* The object is semantically equivalent to the other object before the call.
+
+The object becomes semantically equivalent to the other object.
+
+The other object can be changed, but must be documented if so.
 
 ### Move assigners
 
