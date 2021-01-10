@@ -17,13 +17,7 @@
 #include "pipelines.h"
 
 static unsigned int line_number;
-static int return_value;
 static bool handle_SIGINT;
-
-void execute(pipelines_t* pipelines)
-{
-	pipelines_execute_and_destroy(pipelines, &return_value);
-}
 
 void line_number_increment()
 {
@@ -126,20 +120,20 @@ static char* create_prompt()
 	return buffer;
 }
 
-static int parse_file(const char* file_path)
+static int parse_file(const char* file_path, int* return_value)
 {
 	file_descriptor_t file;
 
 	if (file_descriptor_construct_open(&file, file_path, O_RDONLY, 0) != 0)
 	{
-		fprintf(stderr, "PPshell: %s: No such file or directory\n", file_path);
+		fprintf(stderr, "PPshell: %s: Couldn't open.\n", file_path);
 		return -1;
 	}
 
 	int status = -2;
 
 	if (file_descriptor_redirect_destroy(&file, STDIN_FILENO) == 0)
-		status = yyparse();
+		status = yyparse(return_value);
 
 	file_descriptor_destroy(&file);
 
@@ -151,16 +145,16 @@ static char* readline_with_prompt()
 	return readline(create_prompt());
 }
 
-static int parse_line_no_SIGINT(const char* line)
+static int parse_line_no_SIGINT(const char* line, int* return_value)
 {
 	handle_SIGINT = false;
-	int status = parse_line(line);
+	int status = parse_line(line, return_value);
 	handle_SIGINT = true;
 
 	return status;
 }
 
-static void parse_interactive()
+static int parse_interactive(int* return_value)
 {
 	signal(SIGINT, handler_SIGINT);
 
@@ -176,7 +170,11 @@ static void parse_interactive()
 		{
 			if (strcmp(line, "") != 0)
 			{
-				parse_line_no_SIGINT(line);
+				if (parse_line_no_SIGINT(line, return_value) != 0)
+				{
+					free(line);
+					return -1;
+				}
 				add_history(line);
 			}
 		}
@@ -190,6 +188,8 @@ static void parse_interactive()
 	}
 
 	free(line);
+
+	return 0;
 }
 
 int handle_options(int argc, char** argv, const char** c_line, int* c_index)
@@ -221,7 +221,7 @@ int handle_options(int argc, char** argv, const char** c_line, int* c_index)
 int main(int argc, char** argv)
 {
 	line_number = 1;
-	return_value = 0;
+	int return_value = 0;
 	handle_SIGINT = true;
 
 	internal_commands_init();
@@ -233,24 +233,26 @@ int main(int argc, char** argv)
 
 	if (c_index != 0 && c_index <= optind)
 	{
-		parse_line(c_line);
+		parse_line(c_line, &return_value);
 	}
 	else if (optind != argc)
 	{
-		int parse_file_status = parse_file(argv[1]);
+		int parse_file_status = parse_file(argv[1], &return_value);
 		if (parse_file_status != 0)
 			return parse_file_status;
 	}
 	else
 	{
-		parse_interactive();
+		int parse_interactive_status = parse_interactive(&return_value);
+		if (parse_interactive_status != 0)
+			return parse_interactive_status;
 	}
 
 	return return_value;
 }
 
-void yyerror(const char* message)
+void yyerror(int* return_value, const char* message)
 {
 	fprintf(stderr, "line %d: %s\n", line_number, message);
-	return_value = 2;
+	*return_value = 2;
 }
