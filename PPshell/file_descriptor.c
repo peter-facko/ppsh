@@ -43,8 +43,11 @@ int file_descriptor_assign_move(file_descriptor_t* fd, file_descriptor_t* other)
 	assert(fd != NULL);
 	assert(other != NULL);
 
-	ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(fd));
-	file_descriptor_construct_move(fd, other);
+	if (fd != other)
+	{
+		ERROR_CHECK_INT_NEG_ONE(file_descriptor_destroy(fd));
+		file_descriptor_construct_move(fd, other);
+	}
 
 	return 0;
 }
