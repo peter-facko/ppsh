@@ -23,6 +23,7 @@ void string_construct_move(string_t* string, string_t* new_string)
 int string_construct_cstring_copy(string_t* string, const char* data)
 {
 	assert(string != NULL);
+	assert(data != NULL);
 
 	ERROR_CHECK_PTR_NEG_ONE(string->data = strdup(data));
 
@@ -33,7 +34,7 @@ void string_assign_move(string_t* string, string_t* new_string)
 	assert(string != NULL);
 	assert(new_string != NULL);
 
-	if (string->data != new_string->data)
+	if (string != new_string)
 	{
 		string_destroy(string);
 		string_construct_move(string, new_string);
