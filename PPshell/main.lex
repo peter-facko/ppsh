@@ -19,8 +19,9 @@
 
 [^ \t;<>|\r\n#]+	{
 						string_t s;
-						string_construct_cstring_copy(&s, yytext);
-						yylval.IDF = s;
+						if (string_construct_cstring_copy(&s, yytext) != 0)
+							return YYerror;
+						string_construct_move(&yylval.IDF, &s);
 						return IDF;
 					}
 
@@ -32,13 +33,13 @@
 
 %%
 
-int parse_line(const char* input)
+int parse_line(const char* input, int* return_value)
 {
 	YY_BUFFER_STATE bp = yy_scan_string(input);
 
 	yy_switch_to_buffer(bp);
 
-	int status = yyparse();
+	int status = yyparse(return_value);
 
 	yy_delete_buffer(bp);
 
