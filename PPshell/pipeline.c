@@ -159,9 +159,9 @@ static int pipeline_spawn_children(pipeline_t* pipeline, pid_t* last_child_pid,
 		++spawned_children;
 	}
 
-	ERROR_CHECK_INT_NEG_ONE(pipes_destroy(&pipes));
-
 	*spawned = spawned_children;
+
+	ERROR_CHECK_INT_NEG_ONE(pipes_destroy(&pipes));
 
 	return return_status;
 }
@@ -185,7 +185,7 @@ int pipeline_execute(pipeline_t* pipeline, int* return_value)
 	assert(return_value != NULL);
 	assert(pipeline_is_valid(pipeline));
 
-	pid_t last_child_pid;
+	pid_t last_child_pid = 0;
 	size_t spawned_children;
 
 	int return_status = 0;
