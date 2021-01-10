@@ -1,35 +1,65 @@
 #include "pipelines.h"
 
+#include <assert.h>
 #include <stdio.h>
 
+#include "error_handling.h"
 #include "stailq_helpers.h"
 
-static pipelines_head_t* pipelines_get_head(pipelines_t* pipelines)
+CREATE_STAILQ_HELPERS(pipelines, pipelines_head, head, pipeline, link)
+
+bool pipelines_is_valid(const pipelines_t* pipelines)
 {
-	return &pipelines->head;
+	return !STAILQ_EMPTY(pipelines_get_head_const(pipelines));
 }
 
 void pipelines_construct_move(pipelines_t* pipelines, pipelines_t* other)
 {
+	assert(pipelines != NULL);
+	assert(other != NULL);
+
 	pipelines->head = other->head;
 	STAILQ_INIT(pipelines_get_head(other));
 }
-void pipelines_construct_pipeline_move(pipelines_t* pipelines,
-									   pipeline_t* pipeline)
-{
-	STAILQ_INIT(pipelines_get_head(pipelines));
 
-	pipelines_append_move(pipelines, pipeline);
-}
-void pipelines_append_move(pipelines_t* pipelines, pipeline_t* pipeline)
+static int pipelines_append_move_implementation(pipelines_t* pipelines,
+												pipeline_t* pipeline)
 {
-	pipeline_t* allocated_pipeline = malloc(sizeof(pipeline_t));
+	assert(pipelines != NULL);
+	assert(pipeline != NULL);
+	assert(pipeline_is_valid(pipeline));
+
+	pipeline_t* allocated_pipeline;
+	ERROR_CHECK_PTR_NEG_ONE(allocated_pipeline =
+								(pipeline_t*)malloc(sizeof(pipeline_t)));
+
 	pipeline_construct_move(allocated_pipeline, pipeline);
 
 	STAILQ_INSERT_TAIL(pipelines_get_head(pipelines), allocated_pipeline, link);
+
+	return 0;
 }
 
-CREATE_STAILQ_POP_AND_DESTROY(pipelines, pipeline, link)
+int pipelines_construct_pipeline_move(pipelines_t* pipelines,
+									  pipeline_t* pipeline)
+{
+	assert(pipelines != NULL);
+	assert(pipeline != NULL);
+	assert(pipeline_is_valid(pipeline));
+
+	STAILQ_INIT(pipelines_get_head(pipelines));
+
+	return pipelines_append_move_implementation(pipelines, pipeline);
+}
+int pipelines_append_move(pipelines_t* pipelines, pipeline_t* pipeline)
+{
+	assert(pipelines != NULL);
+	assert(pipeline != NULL);
+	assert(pipelines_is_valid(pipelines));
+	assert(pipeline_is_valid(pipeline));
+
+	return pipelines_append_move_implementation(pipelines, pipeline);
+}
 
 void pipelines_destroy(pipelines_t* pipelines)
 {
@@ -39,6 +69,10 @@ void pipelines_destroy(pipelines_t* pipelines)
 
 void pipelines_execute_and_destroy(pipelines_t* pipelines, int* return_value)
 {
+	assert(pipelines != NULL);
+	assert(return_value != NULL);
+	assert(pipelines_is_valid(pipelines));
+
 	pipeline_t* pipeline;
 	STAILQ_FOREACH(pipeline, pipelines_get_head(pipelines), link)
 	{
@@ -50,6 +84,9 @@ void pipelines_execute_and_destroy(pipelines_t* pipelines, int* return_value)
 
 void pipelines_debug(pipelines_t* pipelines, FILE* out)
 {
+	assert(pipelines != NULL);
+	assert(out != NULL);
+
 	pipeline_t* pipeline;
 	STAILQ_FOREACH(pipeline, pipelines_get_head(pipelines), link)
 	{
