@@ -10,12 +10,7 @@
 #include "pipes.h"
 #include "stailq_helpers.h"
 
-static commands_t* pipeline_get_head(pipeline_t* pipeline)
-{
-	assert(pipeline != NULL);
-
-	return &pipeline->head;
-}
+CREATE_STAILQ_HELPERS(pipeline, commands, head, command, link)
 
 void pipeline_construct_move(pipeline_t* pipeline, pipeline_t* other)
 {
@@ -25,26 +20,46 @@ void pipeline_construct_move(pipeline_t* pipeline, pipeline_t* other)
 	pipeline->head = other->head;
 	STAILQ_INIT(pipeline_get_head(other));
 }
-void pipeline_construct_move_command(pipeline_t* pipeline, command_t* cmd)
-{
-	STAILQ_INIT(pipeline_get_head(pipeline));
 
-	pipeline_append_move_command(pipeline, cmd);
-}
-
-void pipeline_append_move_command(pipeline_t* pipeline, command_t* command)
+static int pipeline_append_move_command_implementation(pipeline_t* pipeline,
+													   command_t* command)
 {
 	assert(pipeline != NULL);
 	assert(command != NULL);
 	assert(command_is_valid(command));
 
-	command_t* allocated_command = (command_t*)malloc(sizeof(command_t));
+	command_t* allocated_command;
+
+	ERROR_CHECK_PTR_NEG_ONE(allocated_command =
+								(command_t*)malloc(sizeof(command_t)));
+
 	command_construct_move(allocated_command, command);
 
 	STAILQ_INSERT_TAIL(pipeline_get_head(pipeline), allocated_command, link);
+
+	return 0;
 }
 
-CREATE_STAILQ_POP_AND_DESTROY(pipeline, command, link)
+int pipeline_construct_move_command(pipeline_t* pipeline, command_t* command)
+{
+	assert(pipeline != NULL);
+	assert(command != NULL);
+	assert(command_is_valid(command));
+
+	STAILQ_INIT(pipeline_get_head(pipeline));
+
+	return pipeline_append_move_command_implementation(pipeline, command);
+}
+
+int pipeline_append_move_command(pipeline_t* pipeline, command_t* command)
+{
+	assert(pipeline != NULL);
+	assert(command != NULL);
+	assert(pipeline_is_valid(pipeline));
+	assert(command_is_valid(command));
+
+	return pipeline_append_move_command_implementation(pipeline, command);
+}
 
 void pipeline_destroy(pipeline_t* pipeline)
 {
@@ -53,9 +68,11 @@ void pipeline_destroy(pipeline_t* pipeline)
 	while (!STAILQ_EMPTY(pipeline_get_head(pipeline)))
 		free(pipeline_pop_and_destroy(pipeline));
 }
-bool pipeline_is_valid(pipeline_t* pipeline)
+bool pipeline_is_valid(const pipeline_t* pipeline)
 {
-	return !STAILQ_EMPTY(pipeline_get_head(pipeline));
+	assert(pipeline != NULL);
+
+	return !STAILQ_EMPTY(&pipeline->head);
 }
 
 static int child_status_to_return_value(int status)
@@ -115,6 +132,10 @@ static int wait_for_children(size_t children_count)
 
 static int pipes_create_helper(pipes_t* pipes, command_t* command)
 {
+	assert(pipes != NULL);
+	assert(command != NULL);
+	assert(command_is_valid(command));
+
 	// !command_is_last(command)
 	if (command->link.stqe_next != NULL)
 		return pipes_create_next(pipes);
@@ -123,11 +144,11 @@ static int pipes_create_helper(pipes_t* pipes, command_t* command)
 }
 
 static int pipeline_spawn_children(pipeline_t* pipeline, pid_t* last_child_pid,
-								   size_t* spawned, int* return_value)
+								   size_t* spawned_children, int* return_value)
 {
 	assert(pipeline != NULL);
 	assert(last_child_pid != NULL);
-	assert(spawned != NULL);
+	assert(spawned_children != NULL);
 	assert(return_value != NULL);
 	assert(pipeline_is_valid(pipeline));
 
@@ -137,7 +158,8 @@ static int pipeline_spawn_children(pipeline_t* pipeline, pid_t* last_child_pid,
 
 	int return_status = 0;
 
-	size_t spawned_children = 0;
+	*last_child_pid = -1;
+	*spawned_children = 0;
 
 	command_t* cmd;
 	STAILQ_FOREACH(cmd, pipeline_get_head(pipeline), link)
@@ -156,10 +178,8 @@ static int pipeline_spawn_children(pipeline_t* pipeline, pid_t* last_child_pid,
 			break;
 		}
 
-		++spawned_children;
+		++*spawned_children;
 	}
-
-	*spawned = spawned_children;
 
 	ERROR_CHECK_INT_NEG_ONE(pipes_destroy(&pipes));
 
@@ -185,7 +205,7 @@ int pipeline_execute(pipeline_t* pipeline, int* return_value)
 	assert(return_value != NULL);
 	assert(pipeline_is_valid(pipeline));
 
-	pid_t last_child_pid = 0;
+	pid_t last_child_pid;
 	size_t spawned_children;
 
 	int return_status = 0;
