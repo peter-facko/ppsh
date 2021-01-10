@@ -16,13 +16,15 @@ typedef struct pipelines
 void pipelines_construct_move(pipelines_t* pipelines, pipelines_t* other);
 /** Special function. */
 void pipelines_destroy(pipelines_t* pipelines);
+/** Special function. */
+bool pipelines_is_valid(const pipelines_t* pipelines);
 
 /** Constructs a 'pipelines' with one 'pipeline'. Moves 'pipeline'. */
-void pipelines_construct_pipeline_move(pipelines_t* pipelines,
-									   pipeline_t* pipeline);
+int pipelines_construct_pipeline_move(pipelines_t* pipelines,
+									  pipeline_t* pipeline);
 
 /** Appends 'pipeline' to 'pipelines'. Moves 'pipeline'. */
-void pipelines_append_move(pipelines_t* pipelines, pipeline_t* pipeline);
+int pipelines_append_move(pipelines_t* pipelines, pipeline_t* pipeline);
 
 /** Executes 'pipelines', stores its 'return_value' and finally destroys
  * 'pipelines'. */
