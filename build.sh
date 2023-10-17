@@ -1,3 +1,4 @@
-#!/bin/bash
-cmake -DCMAKE_BUILD_TYPE:STRING="Release" -G Ninja -S . -B out
-cmake --build out
+#!/usr/bin/env sh
+
+cmake -G "Ninja Multi-Config" -S ./ -B build/ && \
+cmake --build build/ --config Release

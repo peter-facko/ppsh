@@ -1,12 +1,7 @@
 .vs
 .vscode
 
+.cache
+
 CMakeSettings.json
-out/
 build/
-
-lexer.c
-parser.h
-parser.c
-
-cpp.hint

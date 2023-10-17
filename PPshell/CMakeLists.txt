@@ -1,30 +1,29 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
-add_compile_options(-Wall -Wextra -pedantic -Werror)
+find_package(Boost 1.81 REQUIRED COMPONENTS program_options)
 
-find_package(BISON REQUIRED)
-find_package(FLEX REQUIRED)
+add_executable(
+  PPshell
+  "main.cpp"
+  "builtins.cpp"
+  "builtins/cd.cpp"
+  "builtins/exit.cpp"
+  "command.cpp"
+  "commands/command.cpp"
+  "commands/interactive.cpp"
+  "commands/help.cpp"
+  "commands/file.cpp"
+  "exceptions.cpp"
+  "file_descriptor.cpp"
+  "pipes.cpp"
+  "process.cpp"
+  "redirection.cpp"
+  "redirections.cpp"
+  "pipeline.cpp")
 
-bison_target(parser main.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.c DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/parser.h)
+target_compile_options(PPshell PUBLIC "-Wall" "-Wextra" "-pedantic" "-Werror")
+target_compile_features(PPshell PUBLIC cxx_std_23)
+target_include_directories(PPshell PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+                                          ${Boost_INCLUDE_DIRS})
 
-flex_target(lexer main.lex ${CMAKE_CURRENT_SOURCE_DIR}/lexer.c)
-add_flex_bison_dependency(lexer parser)
-
-add_executable(PPshell ${BISON_parser_OUTPUTS} ${FLEX_lexer_OUTPUTS}
-	"main.c"
-	"string.c"
-	"strings.c"
-	"redirections.c"
-	"redirection.c"
-	"command.c"
-	"pipeline.c"
-	"pipelines.c"
-	"internal_commands.c"
-	"internal_exit.c"
-	"internal_cd.c"
- 	"pipes.h"
-	"pipes.c"
-	"file_descriptor.c")
-
-target_link_libraries(PPshell readline)
-target_link_libraries(PPshell ${FLEX_LIBRARIES})
+target_link_libraries(PPshell readline Boost::program_options)

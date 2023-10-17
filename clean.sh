@@ -1,2 +1,3 @@
-#!/bin/bash
-rm -r out
+#!/usr/bin/env sh
+
+rm -r build/
