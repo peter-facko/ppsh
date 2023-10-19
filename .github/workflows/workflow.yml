@@ -68,6 +68,14 @@ jobs:
         key: buildah
     - name: Build Image
       run: podman --root ${{ github.workspace }}/containers build --layers --tag fackop/ppshell --file Containerfile ./
+    - name: Delete Cache
+      if: ${{ steps.cache-buildah-restore.outputs.cache-hit }}
+      continue-on-error: true
+      run: |
+        gh extension install actions/gh-actions-cache
+        gh actions-cache delete buildah --confirm
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Cache Buildah Save
       uses: actions/cache/save@v3.3.2
       if: always()
