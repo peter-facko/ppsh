@@ -28,6 +28,6 @@ RUN pacman --sync --noconfirm readline
 # so there is something to try executing
 RUN pacman --sync --noconfirm coreutils
 
-COPY --from=build /root/install/ /
+COPY --from=build /root/install/ /usr/local/
 
 ENTRYPOINT [ "PPshell" ]
