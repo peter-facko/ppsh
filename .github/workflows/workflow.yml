@@ -71,4 +71,4 @@ jobs:
     - uses: actions/cache/save@v3.3.2
       with:
         path: ${{ github.workspace }}/containers
-        key: buildah
+        key: ${{ steps.cache-buildah-restore.outputs.cache-primary-key }}
