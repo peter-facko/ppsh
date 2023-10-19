@@ -42,5 +42,5 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         context: ${{ github.workspace }}
-        containerfiles: ${{ github.workspace }}/Containerfile
+        containerfiles: Containerfile
         tags: fackop/ppshell:latest
