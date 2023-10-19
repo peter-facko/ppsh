@@ -41,6 +41,6 @@ jobs:
     - name: Build Image
       uses: redhat-actions/buildah-build@v2
       with:
-        context: ${{ github.workspace }}
-        containerfiles: Containerfile
+        context: ./
+        containerfiles: ./Containerfile
         tags: fackop/ppshell:latest
