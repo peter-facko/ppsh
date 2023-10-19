@@ -3,24 +3,24 @@ name: Workflow
 on: push
 
 jobs:
-  build:
-    name: Build Locally
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4.1.1
-    - name: Download Dependencies
-      uses: awalsh128/cache-apt-pkgs-action@v1.3.0
-      with:
-        packages: cmake ninja-build libboost-all-dev libreadline-dev
-        version: local
-    - name: Cache Local Build
-      uses: actions/cache@v3.3.2
-      with:
-        path: ${{ github.workspace }}/build
-        key: local-build
-    - name: Build
-      run: ./build.sh ./ build/
+  # build:
+  #   name: Build Locally
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v4.1.1
+  #   - name: Download Dependencies
+  #     uses: awalsh128/cache-apt-pkgs-action@v1.3.0
+  #     with:
+  #       packages: cmake ninja-build libboost-all-dev libreadline-dev
+  #       version: local
+  #   - name: Cache Local Build
+  #     uses: actions/cache@v3.3.2
+  #     with:
+  #       path: ${{ github.workspace }}/build
+  #       key: local-build
+  #   - name: Build
+  #     run: ./build.sh ./ build/
   build-image-docker:
     name: Build Container Image with Docker
     runs-on: ubuntu-latest
