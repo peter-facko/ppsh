@@ -24,7 +24,7 @@ $ [docker|podman] run --interactive --tty docker.io/fackop/pppshell
 
 ```bash
 $ git clone https://github.com/papundekel/PPshell && cd PPshell
-$ ./build.sh && cmake --install build/ --config Release --prefix <your-installation-path>
+$ ./build.sh ./ <build-path> && cmake --install <build-path> --config Release --prefix <your-installation-path>
 $ <your-installation-path>/PPshell
 ```
 
@@ -48,7 +48,7 @@ $ <your-installation-path>/PPshell
 - `pre-commit` >=3.5
 - `CMake` >=3.21
 - `GCC` >=13
-- `Boost` >=1.83
+- `Boost` >=1.74
 - `readline` >=8.2
 
 ### Setup
