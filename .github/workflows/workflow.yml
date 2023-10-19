@@ -53,3 +53,4 @@ jobs:
         context: ./
         containerfiles: ./Containerfile
         tags: fackop/ppshell:latest
+        layers: true
