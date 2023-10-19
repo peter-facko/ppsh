@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.27)
 
-find_package(Boost 1.81 REQUIRED COMPONENTS program_options)
+find_package(Boost 1.83 REQUIRED COMPONENTS program_options)
 
 add_executable(
   PPshell
@@ -27,3 +27,7 @@ target_include_directories(PPshell PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
                                           ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(PPshell readline Boost::program_options)
+
+include(GNUInstallDirs)
+
+install(TARGETS PPshell DESTINATION ${CMAKE_INSTALL_BINDIR})
