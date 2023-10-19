@@ -45,12 +45,7 @@ jobs:
     - name: Cache Buildah
       uses: actions/cache@v3.3.2
       with:
-        path: /var/lib/containers
+        path: ${{ github.workspace }}/containers
         key: buildah
     - name: Build Image
-      uses: redhat-actions/buildah-build@v2
-      with:
-        context: ./
-        containerfiles: ./Containerfile
-        tags: fackop/ppshell:latest
-        layers: true
+      run: podman --root ${{ github.workspace }}/containers build --layers --tag fackop/ppshell --file Containerfile ./
