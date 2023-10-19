@@ -42,8 +42,11 @@ jobs:
       with:
         packages: podman
         version: podman
-    - name: Set up buildx
-      uses: docker/setup-buildx-action@v3.0.0
+    - name: Cache Buildah
+      uses: actions/cache@v3.3.2
+      with:
+        path: /var/lib/containers
+        key: buildah
     - name: Build Image
       uses: redhat-actions/buildah-build@v2
       with:
