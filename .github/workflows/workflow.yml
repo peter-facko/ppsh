@@ -12,7 +12,7 @@ jobs:
     - name: Download Dependencies
       uses: awalsh128/cache-apt-pkgs-action@v1.3.0
       with:
-        packages: cmake ninja-build libboost-dev libboost-all-dev libreadline-dev
+        packages: cmake ninja-build libboost-all-dev libreadline-dev
         version: local
     - name: Cache Local Build
       uses: actions/cache@v3.3.2
