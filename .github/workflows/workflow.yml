@@ -60,15 +60,11 @@ jobs:
       with:
         packages: podman
         version: podman
-    - name: Cache Buildah Restore
-      id: cache-buildah-restore
-      uses: actions/cache/restore@v3.3.2
+    - name: Cache Buildah
+      uses: actions/cache@v3.3.2
       with:
         path: ${{ github.workspace }}/containers
-        key: buildah
+        key: buildah-${{ github.sha }}
+        restore-keys: buildah-
     - name: Build Image
       run: podman --root ${{ github.workspace }}/containers build --layers --tag fackop/ppshell --file Containerfile ./
-    - uses: actions/cache/save@v3.3.2
-      with:
-        path: ${{ github.workspace }}/containers
-        key: ${{ steps.cache-buildah-restore.outputs.cache-primary-key }}
