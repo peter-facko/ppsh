@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 
-find_package(Boost 1.83 REQUIRED COMPONENTS program_options)
+find_package(Boost 1.74 REQUIRED COMPONENTS program_options)
 
 add_executable(
   PPshell

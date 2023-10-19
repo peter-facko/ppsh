@@ -48,7 +48,7 @@ $ <your-installation-path>/PPshell
 - `pre-commit` >=3.5
 - `CMake` >=3.21
 - `GCC` >=13
-- `Boost` >=1.83
+- `Boost` >=1.74
 - `readline` >=8.2
 
 ### Setup
