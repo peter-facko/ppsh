@@ -12,6 +12,22 @@ A practice implementation of a Unix shell in modern C++.
 - redirections - `cmd1 <x >y; cmd2 >>z`
 - builtins - `cd` and `exit`
 
+## Usage
+
+### Container
+
+```bash
+$ [docker|podman] run --interactive --tty docker.io/fackop/pppshell
+```
+
+### Local
+
+```bash
+$ git clone https://github.com/papundekel/PPshell && cd PPshell
+$ ./build.sh && cmake --install build/ --config Release --prefix <your-installation-path>
+$ <your-installation-path>/PPshell
+```
+
 ## Libraries Used
 
 - [`Boost Spirit X3`](https://www.boost.org/doc/libs/release/libs/spirit/doc/x3/html/index.html) - script parsing
@@ -28,7 +44,12 @@ A practice implementation of a Unix shell in modern C++.
 
 ### Prerequisites
 
-- Python >=3.8
+- `Python` >=3.8
+- `pre-commit` >=3.5
+- `CMake` >=3.21
+- `GCC` >=13
+- `Boost` >=1.83
+- `readline` >=8.2
 
 ### Setup
 
