@@ -11,9 +11,9 @@ COPY ./ /root
 
 WORKDIR /root
 
-RUN chmod u+x build.sh
+RUN chmod u+x build.sh 
 
-RUN ./build.sh
+RUN ./build.sh ./ build/
 
 RUN cmake --install build/ --config Release
 
