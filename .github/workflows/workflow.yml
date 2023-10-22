@@ -21,7 +21,7 @@ jobs:
   #       key: local-build
   #   - name: Build
   #     run: ./build.sh ./ build/
-  build-image-docker:
+  deploy:
     name: Build Container Image with Docker
     runs-on: ubuntu-latest
     steps:
@@ -39,11 +39,35 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Set up buildx
       uses: docker/setup-buildx-action@v3.0.0
-    - name: Build Image
+    - name: Build Runtime Image
       uses: docker/build-push-action@v5.0.0
       with:
         context: ${{ github.workspace }}
-        file: ${{ github.workspace }}/Containerfile
+        file: ${{ github.workspace }}/images/runtime.Containerfile
+        push: false
+        tags: runtime
+        outputs: type=image
+        cache-from: type=registry,ref=fackop/ppshell:buildcache
+        cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
+    - name: Build Test Image
+      uses: docker/build-push-action@v5.0.0
+      with:
+        context: ${{ github.workspace }}
+        file: ${{ github.workspace }}/images/test.Containerfile
+        push: false
+        tags: test
+        outputs: type=image
+        cache-from: type=registry,ref=fackop/ppshell:buildcache
+        cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
+    - name: Run Tests in Image
+      uses: addnab/docker-run-action@v3
+      with:
+        image: test
+    - name: Build and Deploy the Deploy Image
+      uses: docker/build-push-action@v5.0.0
+      with:
+        context: ${{ github.workspace }}
+        file: ${{ github.workspace }}/images/deploy.Containerfile
         push: ${{ github.ref_name == 'main' }}
         tags: fackop/ppshell:latest
         outputs: type=image
