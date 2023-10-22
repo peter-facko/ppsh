@@ -49,6 +49,8 @@ jobs:
         outputs: type=docker
         cache-from: type=registry,ref=fackop/ppshell:buildcache
         cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
+    - name: Test log
+      run: docker images
     - name: Build Test Image
       uses: docker/build-push-action@v5.0.0
       with:
