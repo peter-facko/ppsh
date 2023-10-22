@@ -91,7 +91,7 @@ jobs:
         path: ${{ github.workspace }}/containers
         key: buildah
     - name: Build Image
-      run: podman --root ${{ github.workspace }}/containers build --layers --tag fackop/ppshell --file Containerfile ./
+      run: podman --root ${{ github.workspace }}/containers build --layers --tag runtime --file images/runtime.Containerfile ./
     - name: Delete Cache
       if: ${{ steps.cache-buildah-restore.outputs.cache-hit }}
       continue-on-error: true
