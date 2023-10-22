@@ -46,7 +46,7 @@ jobs:
         file: ${{ github.workspace }}/images/runtime.Containerfile
         push: false
         tags: runtime
-        outputs: type=image
+        outputs: type=docker
         cache-from: type=registry,ref=fackop/ppshell:buildcache
         cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
     - name: Build Test Image
