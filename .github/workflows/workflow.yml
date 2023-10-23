@@ -69,10 +69,7 @@ jobs:
         cache-from: type=registry,ref=fackop/ppshell:buildcache-test
         cache-to: type=registry,ref=fackop/ppshell:buildcache-test,mode=max
     - name: Run Tests in Image
-      uses: addnab/docker-run-action@v3
-      with:
-        image: test
-        run: --verbose --showlocals
+      run: docker run test --verbose --showlocals
     - name: Build and Deploy the Deploy Image
       uses: docker/build-push-action@v5.0.0
       with:
