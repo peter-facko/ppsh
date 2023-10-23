@@ -13,4 +13,4 @@ RUN pip install -r tests/requirements.txt
 
 COPY tests/ /root/tests/tests/
 
-ENTRYPOINT [ "pytest", "--verbose", "tests/tests" ]
+ENTRYPOINT [ "pytest", "tests/tests" ]

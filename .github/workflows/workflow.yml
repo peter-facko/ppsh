@@ -72,6 +72,7 @@ jobs:
       uses: addnab/docker-run-action@v3
       with:
         image: test
+        run: --verbose --showlocals
     - name: Build and Deploy the Deploy Image
       uses: docker/build-push-action@v5.0.0
       with:
