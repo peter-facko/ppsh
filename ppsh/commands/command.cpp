@@ -5,7 +5,7 @@
 #include <sstream>
 #include <string_view>
 
-int PPshell::commands::command(const std::string& command_string)
+int ppsh::commands::command(const std::string& command_string)
 {
     std::istringstream command_stream(command_string);
     return process(command_stream);

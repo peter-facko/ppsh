@@ -8,7 +8,7 @@
 #include <format>
 #include <unistd.h>
 
-namespace PPshell
+namespace ppsh
 {
 pipes::pipes() noexcept
     : in()

@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <iostream>
 
-namespace PPshell
+namespace ppsh
 {
 redirection::redirection(std::string file_path, redirection_type type)
     : file_path(std::move(file_path))

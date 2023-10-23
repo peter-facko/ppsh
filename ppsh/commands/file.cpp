@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string_view>
 
-int PPshell::commands::file(const std::filesystem::path& file_path)
+int ppsh::commands::file(const std::filesystem::path& file_path)
 {
     std::ifstream file(file_path);
 

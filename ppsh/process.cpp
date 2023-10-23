@@ -13,7 +13,7 @@
 #include <iterator>
 #include <ranges>
 
-namespace PPshell
+namespace ppsh
 {
 static unsigned int line_number;
 
@@ -65,7 +65,7 @@ const auto token_def =
 
 BOOST_SPIRIT_DEFINE(token);
 
-const rule<class redirection_rule, std::optional<PPshell::redirection>>
+const rule<class redirection_rule, std::optional<ppsh::redirection>>
     redirection = "redirection";
 
 const auto redirection_def = (redirection_type_symbols >> token)[(
@@ -74,7 +74,7 @@ const auto redirection_def = (redirection_type_symbols >> token)[(
         const auto type = at_c<0>(_attr(context));
         auto& path = at_c<1>(_attr(context));
 
-        _val(context) = PPshell::redirection(std::move(path), type);
+        _val(context) = ppsh::redirection(std::move(path), type);
     })];
 
 BOOST_SPIRIT_DEFINE(redirection);
@@ -84,7 +84,7 @@ const auto argument = token;
 const auto command_path = token;
 
 const rule<class redirection_or_argument_rule,
-           std::optional<std::variant<PPshell::redirection, std::string>>>
+           std::optional<std::variant<ppsh::redirection, std::string>>>
     redirection_or_argument = "redirection_or_argument";
 
 const auto redirection_or_argument_def = (redirection | argument)[(
@@ -92,8 +92,8 @@ const auto redirection_or_argument_def = (redirection | argument)[(
     {
         auto& redirection_or_argument = _attr(context);
 
-        if (auto* const redirection = get<std::optional<PPshell::redirection>>(
-                &redirection_or_argument))
+        if (auto* const redirection =
+                get<std::optional<ppsh::redirection>>(&redirection_or_argument))
         {
             _val(context) = std::move(*redirection);
         }
@@ -106,7 +106,7 @@ const auto redirection_or_argument_def = (redirection | argument)[(
 
 BOOST_SPIRIT_DEFINE(redirection_or_argument);
 
-const rule<class command_rule, std::optional<PPshell::command>> command =
+const rule<class command_rule, std::optional<ppsh::command>> command =
     "command";
 
 const auto command_def =
@@ -124,11 +124,11 @@ const auto command_def =
                 redirections.register_redirection(*std::move(redirection_opt));
             }
 
-            PPshell::command command(std::move(command_path));
+            ppsh::command command(std::move(command_path));
 
             for (auto& redirection_or_argument_opt : redirections_and_arguments)
             {
-                if (auto* const redirection = std::get_if<PPshell::redirection>(
+                if (auto* const redirection = std::get_if<ppsh::redirection>(
                         &*redirection_or_argument_opt))
                 {
                     redirections.register_redirection(std::move(*redirection));
@@ -152,7 +152,7 @@ const auto pipeline = (command % char_('|'))[(
     {
         auto& commands = _attr(context);
 
-        PPshell::pipeline pipeline(
+        ppsh::pipeline pipeline(
             std::ranges::views::transform(commands,
                                           [](auto& command_opt) -> auto&&
                                           {

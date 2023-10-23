@@ -5,7 +5,7 @@
 
 #include <command.hpp>
 
-namespace PPshell
+namespace ppsh
 {
 /** Represents a non-empty shell pipeline (sequence of piped commands).
  *

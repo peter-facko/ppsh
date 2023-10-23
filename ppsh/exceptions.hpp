@@ -2,7 +2,7 @@
 #include <exception>
 #include <string>
 
-namespace PPshell::exceptions
+namespace ppsh::exceptions
 {
 class user_exception : public std::exception
 {};

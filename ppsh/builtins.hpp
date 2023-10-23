@@ -4,7 +4,7 @@
 #include <span>
 #include <string_view>
 
-namespace PPshell::builtins
+namespace ppsh::builtins
 {
 typedef int(
     command_handler)(int, char**, int in, int out, int last_return_value);

@@ -5,7 +5,7 @@
 #include <iosfwd>
 #include <string_view>
 
-namespace PPshell::commands
+namespace ppsh::commands
 {
 int help(std::ostream& output, const po::options_description& description);
 

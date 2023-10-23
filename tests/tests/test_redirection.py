@@ -7,7 +7,7 @@ import pytest
 from .utils import (
     are_shell_tasks_equivalent,
     are_shells_equivalent,
-    execute_PPshell,
+    execute_ppsh,
     execute_sh,
     make_random_string,
 )
@@ -35,17 +35,17 @@ async def test_redirection_out(tmp_path_factory):
 
     random_string = make_random_string()
 
-    PPshell_file_path = tmp_path / "PPshell"
+    ppsh_file_path = tmp_path / "ppsh"
     sh_file_path = tmp_path / "sh"
 
     make_command = lambda file_path: f"echo {random_string} >{file_path}"
 
-    PPshell_task = await execute_PPshell(make_command(PPshell_file_path))
+    ppsh_task = await execute_ppsh(make_command(ppsh_file_path))
     sh_task = await execute_sh(make_command(sh_file_path))
 
-    assert await are_shell_tasks_equivalent(sh_task, PPshell_task)
+    assert await are_shell_tasks_equivalent(sh_task, ppsh_task)
 
-    assert are_file_same(PPshell_file_path, sh_file_path)
+    assert are_file_same(ppsh_file_path, sh_file_path)
 
 
 def write_file(path, content):
@@ -59,19 +59,19 @@ async def test_redirection_append(tmp_path_factory):
 
     random_string = make_random_string()
 
-    PPshell_file_path = tmp_path / "PPshell"
+    ppsh_file_path = tmp_path / "ppsh"
     sh_file_path = tmp_path / "sh"
 
-    write_file(PPshell_file_path, random_string)
+    write_file(ppsh_file_path, random_string)
     write_file(sh_file_path, random_string)
 
     random_string_append = make_random_string()
 
     make_command = lambda file_path: f"echo {random_string_append} >>{file_path}"
 
-    PPshell_task = await execute_PPshell(make_command(PPshell_file_path))
+    ppsh_task = await execute_ppsh(make_command(ppsh_file_path))
     sh_task = await execute_sh(make_command(sh_file_path))
 
-    assert await are_shell_tasks_equivalent(sh_task, PPshell_task)
+    assert await are_shell_tasks_equivalent(sh_task, ppsh_task)
 
-    assert are_file_same(PPshell_file_path, sh_file_path)
+    assert are_file_same(ppsh_file_path, sh_file_path)

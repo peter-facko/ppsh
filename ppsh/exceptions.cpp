@@ -1,6 +1,6 @@
 #include <exceptions.hpp>
 
-namespace PPshell::exceptions
+namespace ppsh::exceptions
 {
 wrapper_user_exception::wrapper_user_exception(
     const std::exception& inner_exception) noexcept

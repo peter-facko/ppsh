@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
 
-project(PPshell)
+project(ppsh)
 
-add_subdirectory(PPshell)
+add_subdirectory(ppsh)

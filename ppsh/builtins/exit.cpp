@@ -4,13 +4,13 @@
 #include <cstdlib>
 #include <iostream>
 
-namespace PPshell::builtins
+namespace ppsh::builtins
 {
 int exit(int argc, char** argv, int, int, int last_return_value)
 {
     if (argc > 2)
     {
-        std::cerr << "PPshell: exit: Too many arguments.\n";
+        std::cerr << "ppsh: exit: Too many arguments.\n";
         return 1;
     }
 
