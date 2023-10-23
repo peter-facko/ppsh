@@ -55,8 +55,8 @@ jobs:
         file: ${{ github.workspace }}/images/runtime.Containerfile
         context: ${{ github.workspace }}
         push: true
-        cache-from: type=registry,ref=fackop/ppshell:buildcache
-        cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
+        cache-from: type=registry,ref=fackop/ppshell:buildcache-runtime
+        cache-to: type=registry,ref=fackop/ppshell:buildcache-runtime,mode=max
     - name: Test log
       run: docker images
     - name: Build Test Image
@@ -68,8 +68,8 @@ jobs:
         push: false
         load: true
         build-contexts: runtime=docker-image://localhost:5000/runtime
-        cache-from: type=registry,ref=fackop/ppshell:buildcache
-        cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
+        cache-from: type=registry,ref=fackop/ppshell:buildcache-test
+        cache-to: type=registry,ref=fackop/ppshell:buildcache-test,mode=max
     - name: Run Tests in Image
       uses: addnab/docker-run-action@v3
       with:
@@ -82,8 +82,8 @@ jobs:
         context: ${{ github.workspace }}
         push: ${{ github.ref_name == 'main' }}
         build-contexts: runtime=docker-image://localhost:5000/runtime
-        cache-from: type=registry,ref=fackop/ppshell:buildcache
-        cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
+        cache-from: type=registry,ref=fackop/ppshell:buildcache-deploy
+        cache-to: type=registry,ref=fackop/ppshell:buildcache-deploy,mode=max
   build-image-podman:
     name: Build Container Image with Podman
     runs-on: ubuntu-latest
