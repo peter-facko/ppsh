@@ -39,15 +39,14 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Set up buildx
       uses: docker/setup-buildx-action@v3.0.0
-      with:
-        driver: docker
     - name: Build Runtime Image
       uses: docker/build-push-action@v5.0.0
       with:
-        context: ${{ github.workspace }}
-        file: ${{ github.workspace }}/images/runtime.Containerfile
-        push: false
         tags: runtime
+        file: ${{ github.workspace }}/images/runtime.Containerfile
+        context: ${{ github.workspace }}
+        push: false
+        load: true
         outputs: type=image
         cache-from: type=registry,ref=fackop/ppshell:buildcache
         cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
@@ -56,10 +55,11 @@ jobs:
     - name: Build Test Image
       uses: docker/build-push-action@v5.0.0
       with:
-        context: ${{ github.workspace }}
-        file: ${{ github.workspace }}/images/test.Containerfile
-        push: false
         tags: test
+        file: ${{ github.workspace }}/images/test.Containerfile
+        context: ${{ github.workspace }}
+        push: false
+        load: true
         outputs: type=image
         cache-from: type=registry,ref=fackop/ppshell:buildcache
         cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
@@ -70,10 +70,10 @@ jobs:
     - name: Build and Deploy the Deploy Image
       uses: docker/build-push-action@v5.0.0
       with:
-        context: ${{ github.workspace }}
-        file: ${{ github.workspace }}/images/deploy.Containerfile
-        push: ${{ github.ref_name == 'main' }}
         tags: fackop/ppshell:latest
+        file: ${{ github.workspace }}/images/deploy.Containerfile
+        context: ${{ github.workspace }}
+        push: ${{ github.ref_name == 'main' }}
         outputs: type=image
         cache-from: type=registry,ref=fackop/ppshell:buildcache
         cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
