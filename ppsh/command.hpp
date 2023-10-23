@@ -6,7 +6,7 @@
 #include <ostream>
 #include <vector>
 
-namespace PPshell
+namespace ppsh
 {
 /** Represents a shell command
  *

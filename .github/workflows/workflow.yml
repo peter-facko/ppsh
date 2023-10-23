@@ -55,8 +55,8 @@ jobs:
         file: ${{ github.workspace }}/images/runtime.Containerfile
         context: ${{ github.workspace }}
         push: true
-        cache-from: type=registry,ref=fackop/ppshell:buildcache-runtime
-        cache-to: type=registry,ref=fackop/ppshell:buildcache-runtime,mode=max
+        cache-from: type=registry,ref=fackop/ppsh:buildcache-runtime
+        cache-to: type=registry,ref=fackop/ppsh:buildcache-runtime,mode=max
     - name: Build Test Image
       uses: docker/build-push-action@v5.0.0
       with:
@@ -66,20 +66,20 @@ jobs:
         push: false
         load: true
         build-contexts: runtime=docker-image://localhost:5000/runtime
-        cache-from: type=registry,ref=fackop/ppshell:buildcache-test
-        cache-to: type=registry,ref=fackop/ppshell:buildcache-test,mode=max
+        cache-from: type=registry,ref=fackop/ppsh:buildcache-test
+        cache-to: type=registry,ref=fackop/ppsh:buildcache-test,mode=max
     - name: Run Tests in Image
       run: docker run test --verbose --showlocals
     - name: Build and Deploy the Deploy Image
       uses: docker/build-push-action@v5.0.0
       with:
-        tags: fackop/ppshell:latest
+        tags: fackop/ppsh:latest
         file: ${{ github.workspace }}/images/deploy.Containerfile
         context: ${{ github.workspace }}
         push: ${{ github.ref_name == 'main' }}
         build-contexts: runtime=docker-image://localhost:5000/runtime
-        cache-from: type=registry,ref=fackop/ppshell:buildcache-deploy
-        cache-to: type=registry,ref=fackop/ppshell:buildcache-deploy,mode=max
+        cache-from: type=registry,ref=fackop/ppsh:buildcache-deploy
+        cache-to: type=registry,ref=fackop/ppsh:buildcache-deploy,mode=max
   build-image-podman:
     name: Build Container Image with Podman
     runs-on: ubuntu-latest

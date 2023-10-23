@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-namespace PPshell
+namespace ppsh
 {
 /** Helper structure for creating pipes for pipelines. */
 class pipes

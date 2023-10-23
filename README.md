@@ -1,13 +1,13 @@
-# PPshell
+# ppsh
 
 A practice implementation of a Unix shell in modern C++.
 
 ## Highlighted Features
 
 - different sources
-  - CLI - `PPshell --command "cmd"`
-  - script - `PPshell script.sh`
-  - interactive - `PPshell`
+  - CLI - `ppsh --command "cmd"`
+  - script - `ppsh script.sh`
+  - interactive - `ppsh`
 - pipes - `cmd1 | cmd2`
 - redirections - `cmd1 <x >y; cmd2 >>z`
 - builtins - `cd` and `exit`
@@ -17,17 +17,17 @@ A practice implementation of a Unix shell in modern C++.
 ### Container
 
 ```bash
-$ [docker|podman] run --interactive --tty docker.io/fackop/pppshell
+$ [docker|podman] run --interactive --tty docker.io/fackop/ppsh
 ```
 
 ### Local
 
 ```bash
-$ git clone https://github.com/papundekel/PPshell
-$ cd PPshell
+$ git clone https://github.com/papundekel/ppsh
+$ cd ppsh
 $ ./build.sh ./ <build-path>
 $ cmake --install <build-path> --config Release --prefix <your-installation-path>
-$ <your-installation-path>/PPshell
+$ <your-installation-path>/ppsh
 ```
 
 #### Runtime Dependencies

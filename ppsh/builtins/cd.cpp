@@ -6,13 +6,13 @@
 #include <iostream>
 #include <unistd.h>
 
-namespace PPshell::builtins
+namespace ppsh::builtins
 {
 int cd(int argc, char** argv, int, int out, int)
 {
     if (argc != 1 && argc != 2)
     {
-        std::cerr << "PPshell: cd: too many arguments\n";
+        std::cerr << "ppsh: cd: too many arguments\n";
 
         return 1;
     }
@@ -24,7 +24,7 @@ int cd(int argc, char** argv, int, int out, int)
         new_pwd_value = std::getenv("HOME");
         if (new_pwd_value == NULL)
         {
-            std::cerr << "PPshell: cd: HOME not set\n";
+            std::cerr << "ppsh: cd: HOME not set\n";
             return 1;
         }
     }
@@ -37,7 +37,7 @@ int cd(int argc, char** argv, int, int out, int)
             new_pwd_value = std::getenv("OLDPWD");
             if (new_pwd_value == NULL)
             {
-                std::cerr << "PPshell: cd: OLDPWD not set\n";
+                std::cerr << "ppsh: cd: OLDPWD not set\n";
                 return 1;
             }
             dprintf(out, "%s\n", new_pwd_value);

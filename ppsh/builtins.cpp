@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-namespace PPshell::builtins
+namespace ppsh::builtins
 {
 command_handler exit;
 command_handler cd;

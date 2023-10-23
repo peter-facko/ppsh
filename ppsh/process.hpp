@@ -1,7 +1,7 @@
 #pragma once
 #include <iosfwd>
 
-namespace PPshell
+namespace ppsh
 {
 int process(std::istream& input);
 }

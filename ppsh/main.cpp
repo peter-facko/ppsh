@@ -9,13 +9,13 @@
 #include <string_view>
 #include <tuple>
 
-using namespace PPshell;
+using namespace ppsh;
 
 std::pair<po::options_description, po::variables_map> parse_cli(int argc,
                                                                 char** argv)
 {
     po::options_description visible_options_description(
-        "Usage: PPshell [options] [file_path]\n\nAllowed options");
+        "Usage: ppsh [options] [file_path]\n\nAllowed options");
 
     visible_options_description.add_options()(
         "command",
@@ -88,15 +88,15 @@ int main(int argc, char** argv)
     }
     catch (const exceptions::user_exception& e)
     {
-        std::cerr << "PPshell: " << e.what() << '\n';
+        std::cerr << "ppsh: " << e.what() << '\n';
     }
     catch (const std::exception& e)
     {
-        std::cerr << "PPshell INTERNAL EXCEPTION: " << e.what() << '\n';
+        std::cerr << "ppsh INTERNAL EXCEPTION: " << e.what() << '\n';
     }
     catch (...)
     {
-        std::cerr << "PPshell INTERNAL EXCEPTION: unknown\n";
+        std::cerr << "ppsh INTERNAL EXCEPTION: unknown\n";
     }
 
     return 1;

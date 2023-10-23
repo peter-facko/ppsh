@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <utility>
 
-namespace PPshell
+namespace ppsh
 {
 file_descriptor::file_descriptor() noexcept
     : fd()

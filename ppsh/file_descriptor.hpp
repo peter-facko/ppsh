@@ -5,7 +5,7 @@
 #include <string>
 #include <tuple>
 
-namespace PPshell
+namespace ppsh
 {
 /** Represents an open file descriptor or an invalid state. */
 class file_descriptor

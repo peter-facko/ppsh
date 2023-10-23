@@ -11,7 +11,7 @@
 #include <optional>
 #include <unistd.h>
 
-namespace PPshell
+namespace ppsh
 {
 redirections::redirections()
     : input_file()

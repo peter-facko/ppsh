@@ -32,27 +32,27 @@ async def execute_command(command, *args):
     )
 
 
-async def execute_PPshell(command):
-    return await execute_command("PPshell", "--command", command)
+async def execute_ppsh(command):
+    return await execute_command("ppsh", "--command", command)
 
 
 async def execute_sh(command):
     return await execute_command("sh", "-c", command)
 
 
-async def are_shell_tasks_equivalent(sh_task, PPshell_task, stdin=None):
+async def are_shell_tasks_equivalent(sh_task, ppsh_task, stdin=None):
     # We assign to variables for `pytest --showlocals` to show the values.
     sh_result = await sh_task(stdin)
-    PPshell_result = await PPshell_task(stdin)
+    ppsh_result = await ppsh_task(stdin)
 
-    return sh_result == PPshell_result
+    return sh_result == ppsh_result
 
 
 async def are_shells_equivalent(command, stdin=None):
     sh_task = await execute_sh(command)
-    PPshell_task = await execute_PPshell(command)
+    ppsh_task = await execute_ppsh(command)
 
-    return await are_shell_tasks_equivalent(sh_task, PPshell_task, stdin)
+    return await are_shell_tasks_equivalent(sh_task, ppsh_task, stdin)
 
 
 def make_random_string():

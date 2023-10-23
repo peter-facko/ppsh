@@ -42,13 +42,13 @@ static auto readline_with_prompt()
 static auto process_no_SIGINT(std::istream& input)
 {
     handle_SIGINT = false;
-    const auto result = PPshell::process(input);
+    const auto result = ppsh::process(input);
     handle_SIGINT = true;
 
     return result;
 }
 
-int PPshell::commands::interactive()
+int ppsh::commands::interactive()
 {
     std::signal(SIGINT, handler_SIGINT);
 

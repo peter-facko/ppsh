@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace PPshell
+namespace ppsh
 {
 /** Represents a type of file redirection */
 enum class redirection_type

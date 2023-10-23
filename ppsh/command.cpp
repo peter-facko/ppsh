@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <vector>
 
-namespace PPshell
+namespace ppsh
 {
 command::command(std::string command_path)
     : command_path(std::move(command_path))
@@ -72,12 +72,12 @@ void command::redirect_io()
     redirections.redirect_io();
 }
 
-static PPshell::builtins::info* find_builtin_with_name(std::string_view name)
+static ppsh::builtins::info* find_builtin_with_name(std::string_view name)
 {
-    const auto commands_view = PPshell::builtins::view();
+    const auto commands_view = ppsh::builtins::view();
 
     const auto i = std::ranges::find_if(commands_view,
-                                        [name](PPshell::builtins::info info)
+                                        [name](ppsh::builtins::info info)
                                         {
                                             return name == info.name;
                                         });
@@ -88,7 +88,7 @@ static PPshell::builtins::info* find_builtin_with_name(std::string_view name)
 std::optional<int> command::try_execute_internal(class pipes& pipes,
                                                  int last_return_value)
 {
-    PPshell::builtins::info* internal_command_ptr =
+    ppsh::builtins::info* internal_command_ptr =
         find_builtin_with_name(get_path());
 
     if (!internal_command_ptr)

@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-namespace PPshell
+namespace ppsh
 {
 /** Represents all file redirections of a command. */
 class redirections

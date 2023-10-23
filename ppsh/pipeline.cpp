@@ -12,7 +12,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-namespace PPshell
+namespace ppsh
 {
 static int child_status_to_return_value(int status)
 {
