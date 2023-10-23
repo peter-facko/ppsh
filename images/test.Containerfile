@@ -4,11 +4,13 @@ RUN pacman --sync --noconfirm python
 
 WORKDIR /root
 
-COPY tests/ /root/tests/
-
 RUN python -m venv .venv/
 ENV PATH="/root/.venv/bin:$PATH"
 
+COPY tests/requirements.txt /root/tests/requirements.txt
+
 RUN pip install -r tests/requirements.txt
 
-ENTRYPOINT [ "pytest", "--verbose", "tests" ]
+COPY tests/ /root/tests/tests/
+
+ENTRYPOINT [ "pytest", "--verbose", "tests/tests" ]
