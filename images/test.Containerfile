@@ -11,4 +11,4 @@ ENV PATH="/root/.venv/bin:$PATH"
 
 RUN pip install -r tests/requirements.txt
 
-ENTRYPOINT [ "pytest", "tests" ]
+ENTRYPOINT [ "pytest", "--verbose", "tests" ]
