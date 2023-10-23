@@ -67,7 +67,7 @@ jobs:
         context: ${{ github.workspace }}
         push: false
         load: true
-        build-contexts: runtime=localhost:5000/runtime
+        build-contexts: runtime=docker-image://localhost:5000/runtime
         cache-from: type=registry,ref=fackop/ppshell:buildcache
         cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
     - name: Run Tests in Image
@@ -81,7 +81,7 @@ jobs:
         file: ${{ github.workspace }}/images/deploy.Containerfile
         context: ${{ github.workspace }}
         push: ${{ github.ref_name == 'main' }}
-        build-contexts: runtime=localhost:5000/runtime
+        build-contexts: runtime=docker-image://localhost:5000/runtime
         cache-from: type=registry,ref=fackop/ppshell:buildcache
         cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
   build-image-podman:
