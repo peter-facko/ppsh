@@ -21,9 +21,14 @@ jobs:
   #       key: local-build
   #   - name: Build
   #     run: ./build.sh ./ build/
-  build-image-docker:
+  deploy:
     name: Build Container Image with Docker
     runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     steps:
     - name: Checkout
       uses: actions/checkout@v4.1.1
@@ -37,18 +42,44 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3.0.0
     - name: Set up buildx
       uses: docker/setup-buildx-action@v3.0.0
-    - name: Build Image
+      with:
+        driver-opts: network=host
+    - name: Build Runtime Image
       uses: docker/build-push-action@v5.0.0
       with:
+        tags: localhost:5000/runtime
+        file: ${{ github.workspace }}/images/runtime.Containerfile
         context: ${{ github.workspace }}
-        file: ${{ github.workspace }}/Containerfile
-        push: ${{ github.ref_name == 'main' }}
+        push: true
+        cache-from: type=registry,ref=fackop/ppshell:buildcache-runtime
+        cache-to: type=registry,ref=fackop/ppshell:buildcache-runtime,mode=max
+    - name: Build Test Image
+      uses: docker/build-push-action@v5.0.0
+      with:
+        tags: test
+        file: ${{ github.workspace }}/images/test.Containerfile
+        context: ${{ github.workspace }}
+        push: false
+        load: true
+        build-contexts: runtime=docker-image://localhost:5000/runtime
+        cache-from: type=registry,ref=fackop/ppshell:buildcache-test
+        cache-to: type=registry,ref=fackop/ppshell:buildcache-test,mode=max
+    - name: Run Tests in Image
+      run: docker run test --verbose --showlocals
+    - name: Build and Deploy the Deploy Image
+      uses: docker/build-push-action@v5.0.0
+      with:
         tags: fackop/ppshell:latest
-        outputs: type=image
-        cache-from: type=registry,ref=fackop/ppshell:buildcache
-        cache-to: type=registry,ref=fackop/ppshell:buildcache,mode=max
+        file: ${{ github.workspace }}/images/deploy.Containerfile
+        context: ${{ github.workspace }}
+        push: ${{ github.ref_name == 'main' }}
+        build-contexts: runtime=docker-image://localhost:5000/runtime
+        cache-from: type=registry,ref=fackop/ppshell:buildcache-deploy
+        cache-to: type=registry,ref=fackop/ppshell:buildcache-deploy,mode=max
   build-image-podman:
     name: Build Container Image with Podman
     runs-on: ubuntu-latest
@@ -64,10 +95,10 @@ jobs:
       id: cache-buildah-restore
       uses: actions/cache/restore@v3.3.2
       with:
-        path: ${{ github.workspace }}/containers
+        path: /tmp/containers
         key: buildah
     - name: Build Image
-      run: podman --root ${{ github.workspace }}/containers build --layers --tag fackop/ppshell --file Containerfile ./
+      run: podman --root /tmp/containers build --layers --tag runtime --file images/runtime.Containerfile ./
     - name: Delete Cache
       if: ${{ steps.cache-buildah-restore.outputs.cache-hit }}
       continue-on-error: true
@@ -79,5 +110,5 @@ jobs:
     - name: Cache Buildah Save
       uses: actions/cache/save@v3.3.2
       with:
-        path: ${{ github.workspace }}/containers
+        path: /tmp/containers
         key: ${{ steps.cache-buildah-restore.outputs.cache-primary-key }}
