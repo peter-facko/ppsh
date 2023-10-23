@@ -23,10 +23,17 @@ $ [docker|podman] run --interactive --tty docker.io/fackop/pppshell
 ### Local
 
 ```bash
-$ git clone https://github.com/papundekel/PPshell && cd PPshell
-$ ./build.sh ./ <build-path> && cmake --install <build-path> --config Release --prefix <your-installation-path>
+$ git clone https://github.com/papundekel/PPshell
+$ cd PPshell
+$ ./build.sh ./ <build-path>
+$ cmake --install <build-path> --config Release --prefix <your-installation-path>
 $ <your-installation-path>/PPshell
 ```
+
+#### Runtime Dependencies
+
+- `Boost` >=1.74
+- `readline` >=8.2
 
 ## Libraries Used
 
@@ -40,22 +47,39 @@ $ <your-installation-path>/PPshell
 - [`clang-format`](https://clang.llvm.org/docs/ClangFormat.html) - code formatting
 - [`pre-commit`](https://pre-commit.com/) - git commit hooks
 
+### Testing
+
+- [`pytest`](https://docs.pytest.org/en/6.2.x/) - integration tests
+- [`pytest-asyncio-cooperative`](https://github.com/willemt/pytest-asyncio-cooperative) - tests run asynchronously
+
 ## Developing
 
-### Prerequisites
+### Development Dependencies
 
 - `Python` >=3.8
 - `pre-commit` >=3.5
 - `CMake` >=3.21
 - `GCC` >=13
-- `Boost` >=1.74
-- `readline` >=8.2
-
-### Setup
+- \+ all runtime dependencies
 
 ```bash
 $ python -m venv .venv/
 $ source .venv/bin/activate
 $ pip install -r requirements-dev.txt
 $ pre-commit install
+```
+
+### Testing
+
+```bash
+$ pytest tests/tests --verbose --showlocals
+```
+
+#### Additional Dependencies
+
+- `pytest` >=7.4
+- `pytest-asyncio-cooperative` >=0.31
+
+```bash
+$ pip install -r tests/requirements.txt
 ```
